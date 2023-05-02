@@ -13,11 +13,13 @@ class Node
     friend class Graph<T>;
 private:
     Graph<T> &m_r_parentGraph;
-    std::set<Node<T> &> m_r_neighbourNodes = {};
+
+    //using reference wrapper because containers of reference to elements are not allowed.
+    std::set<std::reference_wrapper<Node<T>>> m_r_neighbourNodes = {};
 
     bool m_nodeExistsInGraph(const Node<T> &node) const;
 public:
-    explicit Node(Graph<T> &parentGraph, const std::set<Node<T> &> &r_neighbourNodes = {});
+    explicit Node(Graph<T> &parentGraph, const std::set<std::reference_wrapper<Node<T>>> &r_neighbourNodes = {});
 
     bool addEdge(Node<T> &withNode);
     bool removeEdge(Node<T> &withNode);
@@ -62,7 +64,8 @@ bool Node<T>::addEdge(Node<T> &withNode)
 }
 
 template<typename T>
-Node<T>::Node(Graph<T> &parentGraph, const std::set<Node<T> &> &r_neighbourNodes) : m_r_parentGraph{parentGraph}
+Node<T>::Node(Graph<T> &parentGraph, const std::set<std::reference_wrapper<Node<T>>> &r_neighbourNodes)
+    : m_r_parentGraph{parentGraph}
 {
     bool badNode = false;
 
