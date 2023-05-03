@@ -37,7 +37,13 @@ public:
 };
 
 template<typename T>
-std::map<T, Node<T>>::iterator Graph<T>::addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes)
+bool Graph<T>::nodeIsFromGraph(const Node<T> &node) const
+{
+    return &node.m_r_parentGraph == this;
+}
+
+template<typename T>
+MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes)
 {
     if (m_nodes.find(data))
         throw std::logic_error("Node with same data already exists");
@@ -89,11 +95,7 @@ void Graph<T>::connectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
         throw std::logic_error("At least one node was already connected");
 }
 
-template<typename T>
-bool Graph<T>::nodeIsFromGraph(const Node<T> &node) const
-{
-    return &node.m_r_parentGraph == this;
-}
+
 
 template<typename T>
 void Graph<T>::disconnectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,

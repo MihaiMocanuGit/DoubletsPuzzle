@@ -34,19 +34,6 @@ public:
 
 };
 
-template<typename T>
-bool Node<T>::m_connectNode(const Node<T> &withNode)
-{
-    return m_r_neighbourNodes.insert({withNode.m_data, withNode}).inserted;
-}
-
-template<typename T>
-bool Node<T>::m_disconnectNode(const Node<T> &fromNode)
-{
-    return (bool)m_r_neighbourNodes.erase(fromNode.m_data);
-}
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////PRIVATE/////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +61,19 @@ Node<T>::Node(const T &data, Graph<T> &parentGraph, const MapNodesRef_t<T> &r_ne
     //if we have at least one Node which is not from the same graph, badNode will be set to true;
     if (badNode)
         throw std::logic_error("At least one of the given node is not from the same graph");
+}
+
+
+template<typename T>
+bool Node<T>::m_connectNode(const Node<T> &withNode)
+{
+    return m_r_neighbourNodes.insert({withNode.m_data, withNode}).inserted;
+}
+
+template<typename T>
+bool Node<T>::m_disconnectNode(const Node<T> &fromNode)
+{
+    return (bool)m_r_neighbourNodes.erase(fromNode.m_data);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
