@@ -19,8 +19,9 @@ class Node
 {
     friend class Graph<T>;
 private:
-    Graph<T> &m_r_parentGraph;
     T m_data;
+    Graph<T> &m_r_parentGraph;
+
 
     MapNodesPtr_t<T> m_r_neighbourNodes = {};
 

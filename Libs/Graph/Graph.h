@@ -59,14 +59,14 @@ MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesPtr_t<T> 
 }
 
 template<typename T>
-void Graph<T>::removeNode(std::map<T, Node<T>>::iterator &nodeIt)
+void Graph<T>::removeNode(MapNodes_t<T>::iterator &nodeIt)
 {
-    if (not nodeIsFromGraph(*nodeIt))
+    if (not nodeIsFromGraph(nodeIt->second))
         throw std::logic_error("The node is not from this graph");
 
     //we remove all edges from its neighbours with itself
     for (auto &neighbour : nodeIt->second.m_r_neighbourNodes)
-       if (not neighbour.removeNode(nodeIt->first))
+       if (not neighbour.second->m_disconnectNode(nodeIt->second))
            throw std::logic_error("Node was not mutually connected with neighbour");
 
    nodeIt = m_nodes.erase(nodeIt);
@@ -75,7 +75,7 @@ void Graph<T>::removeNode(std::map<T, Node<T>>::iterator &nodeIt)
 template<typename T>
 void Graph<T>::modifyNodeData(std::map<T, Node<T>>::iterator &nodeIt, const T &data)
 {
-    if (not nodeIsFromGraph(*nodeIt))
+    if (not nodeIsFromGraph(nodeIt->second))
         throw std::logic_error("The node is not from this graph");
 
     Node<T> copy = *nodeIt;
@@ -90,7 +90,7 @@ template<typename T>
 void Graph<T>::connectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
                             const std::map<T, Node<T>>::iterator &secondNodeIt)
 {
-    if (not nodeIsFromGraph(*firstNodeIt) or not nodeIsFromGraph(*secondNodeIt))
+    if (not nodeIsFromGraph(firstNodeIt->second) or not nodeIsFromGraph(secondNodeIt->second))
         throw std::logic_error("At least one node is not from this graph");
 
     if(firstNodeIt->second.m_connectNode(*secondNodeIt) == 0 or secondNodeIt->second.m_connectNode(*firstNodeIt) == 0)

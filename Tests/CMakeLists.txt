@@ -11,7 +11,7 @@ add_executable(tests test.cpp
 
 
 
-include_directories(../Libs/Graph)
+include_directories(../Libs)
 
 
 target_link_libraries(tests PRIVATE Libs Catch2::Catch2WithMain)
