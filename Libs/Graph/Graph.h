@@ -8,61 +8,123 @@
 
 
 template <typename T>
+using MapNodes_t = std::map<T, Node<T>>;
+
+template <typename T>
 class Graph
 {
 private:
-    std::set<Node<T>> m_nodes = {};
+    MapNodes_t<T> m_nodes = {};
 
 public:
     Graph() = default;
-    Graph(int noEmptyNodes);
+    bool nodeIsFromGraph(const Node<T> &node) const;
 
-    void addNode(const SetOfNodesRef_t<T> &neighbourNodes);
-    void removeNode(Node<T> &r_node);
-    void connectNodes(Node<T> &firstNode, Node<T> &secondNode);
+    MapNodes_t<T>::iterator addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes = {});
 
-    const std::set<Node<T>> &getNodes() const;
+    //the iterator will be modified, it will be set Iterator following the last removed element!
+    void removeNode(MapNodes_t<T>::iterator &nodeIt);
+
+    //the iterator will be modified, it will be set to its new position!
+    void modifyNodeData(MapNodes_t<T>::iterator &nodeIt, const T& data);
+
+    void connectNodes(const MapNodes_t<T>::iterator &firstNodeIt, const MapNodes_t<T>::iterator &secondNodeIt);
+    void disconnectNodes(const MapNodes_t<T>::iterator &firstNodeIt, const MapNodes_t<T>::iterator &secondNodeIt);
+
+    const MapNodes_t<T>::iterator &begin() const;
+    const MapNodes_t<T>::iterator &end() const;
+    const MapNodes_t<T> &getNodes() const;
 };
 
 template<typename T>
-Graph<T>::Graph(int noEmptyNodes)
+std::map<T, Node<T>>::iterator Graph<T>::addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes)
 {
-    for (int i = 0; i < noEmptyNodes; ++i)
-        m_nodes.insert( Node<T>(*this));
+    if (m_nodes.find(data))
+        throw std::logic_error("Node with same data already exists");
+
+    auto it = m_nodes.insert({data, neighbourNodes});
+    //we connect all neighbours with itself
+    for (auto &neighbour : neighbourNodes)
+        neighbour.second.get().m_connectNode(*it);
+
+    return it;
 }
 
 template<typename T>
-void Graph<T>::addNode(const SetOfNodesRef_t<T> &neighbourNodes)
+void Graph<T>::removeNode(std::map<T, Node<T>>::iterator &nodeIt)
 {
-    auto pair = m_nodes.emplace(*this, neighbourNodes);
+    if (not nodeIsFromGraph(*nodeIt))
+        throw std::logic_error("The node is not from this graph");
 
-    //if the node was inserted (meaning it wasn't already inside the graph)
-    if (pair.second)
-        //update all nodes with which it has an edge so that they know about their new neighbour
-        for (Node<T> &r_node : neighbourNodes)
-            if (not r_node.addEdge(*(pair.first)))
-                throw std::logic_error("Edge already existed!");
+    //we remove all edges from its neighbours with itself
+    for (auto &neighbour : nodeIt->second.m_r_neighbourNodes)
+       if (not neighbour.removeNode(nodeIt->first))
+           throw std::logic_error("Node was not mutually connected with neighbour");
+
+   nodeIt = m_nodes.erase(nodeIt);
 }
 
 template<typename T>
-void Graph<T>::removeNode(Node<T> &r_node)
+void Graph<T>::modifyNodeData(std::map<T, Node<T>>::iterator &nodeIt, const T &data)
 {
-    //remove all edges from the other nodes to this node
-    for (auto &neighbours : r_node.m_r_neighbourNodes)
-        if (not neighbours.removeEdge(r_node))
-            throw std::logic_error("Edge did not exist!");
+    if (not nodeIsFromGraph(*nodeIt))
+        throw std::logic_error("The node is not from this graph");
+
+    Node<T> copy = *nodeIt;
+    copy.m_data = data;
+
+    removeNode(nodeIt);
+
+    nodeIt = addNode(copy.m_data, copy.m_r_neighbourNodes);
 }
 
 template<typename T>
-void Graph<T>::connectNodes(Node<T> &firstNode, Node<T> &secondNode)
+void Graph<T>::connectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
+                            const std::map<T, Node<T>>::iterator &secondNodeIt)
 {
-    if (firstNode.addEdge(secondNode) != secondNode.addEdge(firstNode))
-        throw std::logic_error("Only one of the node was already connected!");
+    if (not nodeIsFromGraph(*firstNodeIt) or not nodeIsFromGraph(*secondNodeIt))
+        throw std::logic_error("At least one node is not from this graph");
+
+    if(firstNodeIt->second.m_connectNode(*secondNodeIt) == 0 or secondNodeIt->second.m_connectNode(*firstNodeIt) == 0)
+        throw std::logic_error("At least one node was already connected");
 }
 
 template<typename T>
-const std::set<Node<T>> &Graph<T>::getNodes() const
+bool Graph<T>::nodeIsFromGraph(const Node<T> &node) const
+{
+    return &node.m_r_parentGraph == this;
+}
+
+template<typename T>
+void Graph<T>::disconnectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
+                               const std::map<T, Node<T>>::iterator &secondNodeIt)
+{
+    if (not nodeIsFromGraph(*firstNodeIt) or not nodeIsFromGraph(*secondNodeIt))
+        throw std::logic_error("At least one node is not from this graph");
+
+    if(firstNodeIt->second.m_disconnectNode(*secondNodeIt) != secondNodeIt->second.m_disconnectNode(*firstNodeIt))
+        throw std::logic_error("Only one node was connected with the other");
+}
+
+template<typename T>
+const std::map<T, Node<T>>::iterator &Graph<T>::begin() const
+{
+    return m_nodes.begin();
+}
+
+template<typename T>
+const std::map<T, Node<T>>::iterator &Graph<T>::end() const
+{
+    return m_nodes.end();
+}
+
+template<typename T>
+const MapNodes_t<T> &Graph<T>::getNodes() const
 {
     return m_nodes;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////PUBLIC//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
