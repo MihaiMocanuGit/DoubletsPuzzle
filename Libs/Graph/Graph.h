@@ -45,13 +45,15 @@ bool Graph<T>::nodeIsFromGraph(const Node<T> &node) const
 template<typename T>
 MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes)
 {
-    if (m_nodes.find(data))
+    if (m_nodes.find(data) != m_nodes.end())
         throw std::logic_error("Node with same data already exists");
 
-    auto it = m_nodes.insert({data, neighbourNodes});
+    Node<T> node(data, *this, neighbourNodes);
+    const auto [it, success] = m_nodes.insert(std::make_pair(data, node));
+
     //we connect all neighbours with itself
     for (auto &neighbour : neighbourNodes)
-        neighbour.second.get().m_connectNode(*it);
+        neighbour.second.get().m_connectNode(it->second);
 
     return it;
 }

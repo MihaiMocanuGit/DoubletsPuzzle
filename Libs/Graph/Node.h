@@ -25,11 +25,12 @@ private:
     T m_data;
 
     MapNodesRef_t<T> m_r_neighbourNodes = {};
-    Node(const T &data, Graph<T> &parentGraph, const MapNodesRef_t<T> &r_neighbourNodes = {});
+
 
     bool m_connectNode(const Node<T> &withNode);
     bool m_disconnectNode(const Node<T> &fromNode);
 public:
+    Node(const T &data, Graph<T> &parentGraph, const MapNodesRef_t<T> &r_neighbourNodes = {});
     const T &getData() const;
 
 };
@@ -67,7 +68,9 @@ Node<T>::Node(const T &data, Graph<T> &parentGraph, const MapNodesRef_t<T> &r_ne
 template<typename T>
 bool Node<T>::m_connectNode(const Node<T> &withNode)
 {
-    return m_r_neighbourNodes.insert({withNode.m_data, withNode}).inserted;
+
+    const auto [it, success] = m_r_neighbourNodes.insert(std::make_pair(withNode.m_data, withNode));
+    return success;
 }
 
 template<typename T>
