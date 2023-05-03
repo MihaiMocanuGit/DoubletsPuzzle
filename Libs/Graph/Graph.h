@@ -20,7 +20,7 @@ public:
     Graph() = default;
     bool nodeIsFromGraph(const Node<T> &node) const;
 
-    MapNodes_t<T>::iterator addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes = {});
+    MapNodes_t<T>::iterator addNode(const T &data, const MapNodesPtr_t<T> &neighbourNodes = {});
 
     //the iterator will be modified, it will be set Iterator following the last removed element!
     void removeNode(MapNodes_t<T>::iterator &nodeIt);
@@ -43,7 +43,7 @@ bool Graph<T>::nodeIsFromGraph(const Node<T> &node) const
 }
 
 template<typename T>
-MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesRef_t<T> &neighbourNodes)
+MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesPtr_t<T> &neighbourNodes)
 {
     if (m_nodes.find(data) != m_nodes.end())
         throw std::logic_error("Node with same data already exists");
@@ -53,7 +53,7 @@ MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesRef_t<T> 
 
     //we connect all neighbours with itself
     for (auto &neighbour : neighbourNodes)
-        neighbour.second.get().m_connectNode(it->second);
+        neighbour.second->m_connectNode(it->second);
 
     return it;
 }
