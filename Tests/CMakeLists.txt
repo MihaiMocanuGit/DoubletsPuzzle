@@ -7,7 +7,7 @@ find_package(Catch2 3 REQUIRED)
 
 # These tests can use the Catch2-provided main
 add_executable(tests test.cpp
-                Test_Graph/test_Graph.cpp Test_Graph/test_Node.cpp)
+                Test_Graph/test_Graph.cpp Test_Graph/test_Node.cpp Test_Tools/test_BFS.cpp)
 
 
 
