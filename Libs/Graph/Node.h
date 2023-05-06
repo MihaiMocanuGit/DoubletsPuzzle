@@ -4,18 +4,20 @@
 #include <stdexcept>
 #include <algorithm>
 
-template <typename T>
-class Graph;
+
 
 template <typename T>
 class Node;
-
 
 template <typename T>
 using MapNodes_t = std::map<T, Node<T>>;
 
 template <typename T>
 using MapNodesPtr_t = std::map<T, Node<T> *>;
+
+
+template <typename T>
+class Graph;
 
 template <typename T>
 class Node
@@ -38,6 +40,9 @@ private:
 
 public:
     const T &getData() const;
+    const MapNodes_t<T>::iterator &getIterator() const;
+    MapNodes_t<T>::iterator getIterator();
+
     const MapNodesPtr_t<T> &getNeighbours() const;
 
     const MapNodesPtr_t<T>::iterator &beginNeighbours() const;
@@ -47,6 +52,18 @@ public:
     MapNodesPtr_t<T>::iterator endNeighbours();
 
 };
+
+template<typename T>
+std::map<T, Node<T>>::iterator Node<T>::getIterator()
+{
+    return m_iterator;
+}
+
+template<typename T>
+const MapNodes_t<T>::iterator &Node<T>::getIterator() const
+{
+    return m_iterator;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
