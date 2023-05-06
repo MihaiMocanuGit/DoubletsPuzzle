@@ -1,14 +1,14 @@
 #pragma once
 
 #include <vector>
+#include <unordered_set>
 #include <stdexcept>
 
 #include "Node.h"
 
-
-
 template <typename T>
-using MapNodes_t = std::map<T, Node<T>>;
+using NeighbhoursIterators_t = std::unordered_set<typename MapNodes_t<T>::iterator>;
+
 
 template <typename T>
 class Graph
@@ -18,22 +18,31 @@ private:
 
 public:
     Graph() = default;
+
     bool nodeIsFromGraph(const Node<T> &node) const;
 
     MapNodes_t<T>::iterator addNode(const T &data, const MapNodesPtr_t<T> &neighbourNodes = {});
 
-    //the iterator will be modified, it will be set Iterator following the last removed element!
+    //the iterator will be modified, it will be set to the iterator following the last removed element!
     void removeNode(MapNodes_t<T>::iterator &nodeIt);
+    void removeNode(MapNodes_t<T>::iterator &&nodeIt); //r_value reference version for ease of usability
 
     //the iterator will be modified, it will be set to its new position!
     void modifyNodeData(MapNodes_t<T>::iterator &nodeIt, const T& data);
+    void modifyNodeData(MapNodes_t<T>::iterator &&nodeIt, const T& data); //r_value reference version for ease of usability
 
     void connectNodes(const MapNodes_t<T>::iterator &firstNodeIt, const MapNodes_t<T>::iterator &secondNodeIt);
     void disconnectNodes(const MapNodes_t<T>::iterator &firstNodeIt, const MapNodes_t<T>::iterator &secondNodeIt);
 
     const MapNodes_t<T>::iterator &begin() const;
+    MapNodes_t<T>::iterator begin();
+
     const MapNodes_t<T>::iterator &end() const;
+    MapNodes_t<T>::iterator end();
+
+    unsigned int size() const;
     const MapNodes_t<T> &getNodes() const;
+
 };
 
 template<typename T>
@@ -50,7 +59,7 @@ MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesPtr_t<T> 
 
     Node<T> node(data, *this, neighbourNodes);
     const auto [it, success] = m_nodes.insert(std::make_pair(data, node));
-
+    it->second.m_setIterator(it);
     //we connect all neighbours with itself
     for (auto &neighbour : neighbourNodes)
         neighbour.second->m_connectNode(it->second);
@@ -61,11 +70,13 @@ MapNodes_t<T>::iterator Graph<T>::addNode(const T &data, const MapNodesPtr_t<T> 
 template<typename T>
 void Graph<T>::removeNode(MapNodes_t<T>::iterator &nodeIt)
 {
+    if (nodeIt == m_nodes.end())
+        throw std::logic_error("Invalid Iterator");
     if (not nodeIsFromGraph(nodeIt->second))
         throw std::logic_error("The node is not from this graph");
 
     //we remove all edges from its neighbours with itself
-    for (auto &neighbour : nodeIt->second.m_r_neighbourNodes)
+    for (auto &neighbour : nodeIt->second.m_neighbourNodesPtr)
        if (not neighbour.second->m_disconnectNode(nodeIt->second))
            throw std::logic_error("Node was not mutually connected with neighbour");
 
@@ -73,23 +84,37 @@ void Graph<T>::removeNode(MapNodes_t<T>::iterator &nodeIt)
 }
 
 template<typename T>
+void Graph<T>::removeNode(std::map<T, Node<T>>::iterator &&nodeIt)
+{
+    removeNode(nodeIt);
+}
+
+template<typename T>
 void Graph<T>::modifyNodeData(std::map<T, Node<T>>::iterator &nodeIt, const T &data)
 {
+    if (nodeIt == m_nodes.end())
+        throw std::logic_error("Invalid Iterator");
     if (not nodeIsFromGraph(nodeIt->second))
         throw std::logic_error("The node is not from this graph");
 
-    Node<T> copy = *nodeIt;
-    copy.m_data = data;
+    auto copyOfNeighbours = nodeIt->second.m_neighbourNodesPtr;
 
     removeNode(nodeIt);
 
-    nodeIt = addNode(copy.m_data, copy.m_r_neighbourNodes);
+    nodeIt = addNode(data, copyOfNeighbours);
+}
+template<typename T>
+void Graph<T>::modifyNodeData(std::map<T, Node<T>>::iterator &&nodeIt, const T &data)
+{
+    modifyNodeData(nodeIt, data);
 }
 
 template<typename T>
 void Graph<T>::connectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
                             const std::map<T, Node<T>>::iterator &secondNodeIt)
 {
+    if (firstNodeIt == m_nodes.end() or secondNodeIt == m_nodes.end() )
+        throw std::logic_error("Invalid Iterator(s)");
     if (not nodeIsFromGraph(firstNodeIt->second) or not nodeIsFromGraph(secondNodeIt->second))
         throw std::logic_error("At least one node is not from this graph");
 
@@ -103,6 +128,8 @@ template<typename T>
 void Graph<T>::disconnectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
                                const std::map<T, Node<T>>::iterator &secondNodeIt)
 {
+    if (firstNodeIt == m_nodes.end() or secondNodeIt == m_nodes.end() )
+        throw std::logic_error("Invalid Iterator(s)");
     if (not nodeIsFromGraph(*firstNodeIt) or not nodeIsFromGraph(*secondNodeIt))
         throw std::logic_error("At least one node is not from this graph");
 
@@ -117,9 +144,27 @@ const std::map<T, Node<T>>::iterator &Graph<T>::begin() const
 }
 
 template<typename T>
+std::map<T, Node<T>>::iterator Graph<T>::begin()
+{
+    return m_nodes.begin();
+}
+
+template<typename T>
 const std::map<T, Node<T>>::iterator &Graph<T>::end() const
 {
     return m_nodes.end();
+}
+
+template<typename T>
+std::map<T, Node<T>>::iterator Graph<T>::end()
+{
+    return m_nodes.end();
+}
+
+template<typename T>
+unsigned int Graph<T>::size() const
+{
+    return m_nodes.size();
 }
 
 template<typename T>
