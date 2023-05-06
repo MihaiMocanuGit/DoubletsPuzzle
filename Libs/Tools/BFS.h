@@ -14,8 +14,7 @@ using Solution_t = std::deque<NodeIterator_t<T>>;
 
 
 template<typename T>
-void BFS(const Graph<T> &graph, const NodeIterator_t<T> &start, const T &searchedValue,
-         Solution_t<T> &out_solutionPath);
+void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath);
 
 }
 
@@ -33,36 +32,33 @@ template<typename T>
 struct NodePair
 {
     NodeIterator_t<T> current;
-    NodeIterator_t<T> prev;
-    long unsigned indexPrev;
+    NodeIterator_t<T> parent;
+    long unsigned indexParent;
 };
 
 template<typename T>
-void generateSolution(const std::deque<Private::NodePair<T>> &queue, Solution_t<T> &out_solutionPath)
+void generateSolution(const std::deque<Private::NodePair<T>> &history, Solution_t<T> &out_solutionPath)
 {
-    NodeIterator_t<T> current = queue.back().current;
-    long unsigned  indexCurrent = queue.size() - 1;
-
-    NodeIterator_t<T> start = queue.front().current;
+    NodeIterator_t<T> current = history.back().current;
+    long unsigned indexCurrent = history.size() - 1;
 
     out_solutionPath.push_back(current);
 
     while (indexCurrent > 0)
     {
-        current = queue[indexCurrent].prev;
-        indexCurrent = queue[indexCurrent].indexPrev;
-        out_solutionPath.push_back(queue[indexCurrent].current);
+        indexCurrent = history[indexCurrent].indexParent;
+        out_solutionPath.push_back(history[indexCurrent].current);
     }
-
 }
 
 }
 
 
 template<typename T>
-void BFS(const Graph<T> &graph, const NodeIterator_t<T> &start, const T &searchedValue,
-         Solution_t<T> &out_solutionPath)
+void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath)
 {
+    out_solutionPath = {};
+
     std::deque<NodeIterator_t<T>> queue;
     std::deque<Private::NodePair<T>> history;
 
@@ -70,19 +66,19 @@ void BFS(const Graph<T> &graph, const NodeIterator_t<T> &start, const T &searche
     queue.push_back(start);
     history.push_back({start, start, 0});
 
+    if (start->first == searchedValue)
+    {
+        generateSolution(history, out_solutionPath);
+        return;
+    }
+
     long unsigned indexCurrent = 0;
     while (not queue.empty())
     {
         NodeIterator_t<T> current = queue.front();
-        std::cout << current->first << ' ';
         queue.pop_front();
 
-        if (current->first == searchedValue)
-        {
-            generateSolution(history, out_solutionPath);
-            std::cout << std::endl;
-            return;
-        }
+
         for (auto next = current->second.beginNeighbours(); next != current->second.endNeighbours(); next++)
         {
             if (explored.find(next->first) == explored.end())
@@ -90,12 +86,16 @@ void BFS(const Graph<T> &graph, const NodeIterator_t<T> &start, const T &searche
                 explored.insert(next->first);
                 queue.push_back(next->second->getIterator());
                 history.push_back({next->second->getIterator(), current, indexCurrent});
+            }
 
+            if (next->first == searchedValue)
+            {
+                generateSolution(history, out_solutionPath);
+                return;
             }
         }
         indexCurrent++;
     }
-    std::cout << std::endl;
 }
 
 

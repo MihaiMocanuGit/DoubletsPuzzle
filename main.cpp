@@ -8,6 +8,6 @@ int main()
     Graph<int> graph;
 
     Tools::Solution_t<int> solution;
-    Tools::BFS(graph, graph.begin(), 20, solution);
+    Tools::BFS(graph.begin(), 20, solution);
     return 0;
 }

@@ -21,7 +21,7 @@ TEST_CASE("BFS", "[BFS]")
 
 
         Tools::Solution_t<int> solution;
-        Tools::BFS(graph, it2, 7, solution);
+        Tools::BFS(it2, 7, solution);
 
         CHECK(solution.size() == 4);
         CHECK(solution[0]->first == 7);
@@ -55,7 +55,7 @@ TEST_CASE("BFS", "[BFS]")
 
 
         Tools::Solution_t<int> solution;
-        Tools::BFS(graph, it2, 7, solution);
+        Tools::BFS(it2, 7, solution);
 
         CHECK(solution.size() == 4);
         CHECK(solution[0]->first == 7);
@@ -85,18 +85,36 @@ TEST_CASE("BFS", "[BFS]")
         }
 
         Tools::Solution_t<int> solution;
-        Tools::BFS(graph, it2, 2, solution);
+        Tools::BFS(it2, 2, solution);
         CHECK(solution.size() == 1);
         CHECK(solution[0]->first == 2);
 
-        Tools::BFS(graph, it2, 16, solution);
+        Tools::BFS(it2, 16, solution);
         CHECK(solution.size() == 2);
-        CHECK(solution[0]->first == 2);
-        CHECK(solution[1]->first == 16);
+        CHECK(solution[0]->first == 16);
+        CHECK(solution[1]->first == 2);
 
-        Tools::BFS(graph, it2, 64, solution);
+        Tools::BFS(it2, 64, solution);
         CHECK(solution.size() == 2);
-        CHECK(solution[0]->first == 2);
-        CHECK(solution[1]->first == 64);
+        CHECK(solution[0]->first == 64);
+        CHECK(solution[1]->first == 2);
+
+        Tools::BFS(graph.findNode(64), graph.findNode(16)->first, solution);
+        CHECK(solution.size() == 3);
+        CHECK(solution[0]->first == 16);
+        CHECK(solution[1]->first == 2);
+        CHECK(solution[2]->first == 64);
+
+        Tools::BFS(graph.findNode(7 * 7), 5 * 5, solution);
+        CHECK(solution.size() == 5);
+        CHECK(solution[0]->first == 5*5);
+        CHECK(solution[1]->first == 5);
+        CHECK(solution[2]->first == 5*7);
+        CHECK(solution[3]->first == 7);
+        CHECK(solution[4]->first == 7*7);
+
+        Tools::BFS(it2, -1, solution);
+        CHECK(solution.empty());
+
     }
 }
