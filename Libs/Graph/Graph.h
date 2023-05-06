@@ -34,6 +34,8 @@ public:
     void connectNodes(const MapNodes_t<T>::iterator &firstNodeIt, const MapNodes_t<T>::iterator &secondNodeIt);
     void disconnectNodes(const MapNodes_t<T>::iterator &firstNodeIt, const MapNodes_t<T>::iterator &secondNodeIt);
 
+    const MapNodes_t<T> &getNodes() const;
+
     const MapNodes_t<T>::iterator &begin() const;
     MapNodes_t<T>::iterator begin();
 
@@ -41,9 +43,16 @@ public:
     MapNodes_t<T>::iterator end();
 
     unsigned int size() const;
-    const MapNodes_t<T> &getNodes() const;
+
+    const MapNodes_t<T>::iterator &findNode(const T &withData) const;
+    MapNodes_t<T>::iterator findNode(const T &withData);
 
 };
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////PUBLIC//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
 bool Graph<T>::nodeIsFromGraph(const Node<T> &node) const
@@ -118,8 +127,8 @@ void Graph<T>::connectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt,
     if (not nodeIsFromGraph(firstNodeIt->second) or not nodeIsFromGraph(secondNodeIt->second))
         throw std::logic_error("At least one node is not from this graph");
 
-    if(firstNodeIt->second.m_connectNode(*secondNodeIt) == 0 or secondNodeIt->second.m_connectNode(*firstNodeIt) == 0)
-        throw std::logic_error("At least one node was already connected");
+    if(firstNodeIt->second.m_connectNode(secondNodeIt->second) != secondNodeIt->second.m_connectNode(firstNodeIt->second))
+        throw std::logic_error("One node was connected with the other");
 }
 
 
@@ -130,11 +139,17 @@ void Graph<T>::disconnectNodes(const std::map<T, Node<T>>::iterator &firstNodeIt
 {
     if (firstNodeIt == m_nodes.end() or secondNodeIt == m_nodes.end() )
         throw std::logic_error("Invalid Iterator(s)");
-    if (not nodeIsFromGraph(*firstNodeIt) or not nodeIsFromGraph(*secondNodeIt))
+    if (not nodeIsFromGraph(firstNodeIt->second) or not nodeIsFromGraph(secondNodeIt->second))
         throw std::logic_error("At least one node is not from this graph");
 
-    if(firstNodeIt->second.m_disconnectNode(*secondNodeIt) != secondNodeIt->second.m_disconnectNode(*firstNodeIt))
-        throw std::logic_error("Only one node was connected with the other");
+    if(firstNodeIt->second.m_disconnectNode(secondNodeIt->second) != secondNodeIt->second.m_disconnectNode(firstNodeIt->second))
+        throw std::logic_error("One node was connected with the other");
+}
+
+template<typename T>
+const MapNodes_t<T> &Graph<T>::getNodes() const
+{
+    return m_nodes;
 }
 
 template<typename T>
@@ -167,13 +182,18 @@ unsigned int Graph<T>::size() const
     return m_nodes.size();
 }
 
+
 template<typename T>
-const MapNodes_t<T> &Graph<T>::getNodes() const
+std::map<T, Node<T>>::iterator Graph<T>::findNode(const T &withData)
 {
-    return m_nodes;
+    return m_nodes.find(withData);
+}
+
+template<typename T>
+const std::map<T, Node<T>>::iterator &Graph<T>::findNode(const T &withData) const
+{
+    return m_nodes.find(withData);
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////PUBLIC//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+

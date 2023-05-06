@@ -74,8 +74,105 @@ TEST_CASE( "Graph", "[Graph]")
     {
         Graph<int> graph;
 
-        for (int i = 0; i < 100; ++i)
-            graph.addNode(i);
+        //we add some nodes having as data prime numbers
+        auto it2 = graph.addNode(2);
+        auto it3 = graph.addNode(3);
+        auto it5 = graph.addNode(5);
+        auto it7 = graph.addNode(7);
+
+        SECTION("Connect nodes at creation")
+        {
+            for (int i = 10; i <= 100; ++i)
+            {
+                MapNodesPtr_t<int> neighbours;
+
+                //if the node with data i is divided by any of the prime nodes, we create a link
+                if (i % 2 == 0)
+                    neighbours.insert({2, &(it2->second)});
+                if (i % 3 == 0)
+                    neighbours.insert({3, &(it3->second)});
+                if (i % 5 == 0)
+                    neighbours.insert({5, &(it5->second)});
+                if (i % 7 == 0)
+                    neighbours.insert({7, &(it7->second)});
+
+                graph.addNode(i, neighbours);
+            }
+
+            CHECK(it2->second.getNeighbours().size() == (100 / 2) - (9 / 2));
+            CHECK(it3->second.getNeighbours().size() == (100 / 3) - (9 / 3));
+            CHECK(it5->second.getNeighbours().size() == (100 / 5) - (9 / 5));
+            CHECK(it7->second.getNeighbours().size() == (100 / 7) - (9 / 7));
+
+            for (auto it = graph.begin(); it != graph.end(); it++)
+            {
+                if (it != it2 and it != it3 and it != it5 and it != it7)
+                {
+                    unsigned long divisors = (it->first % 2 == 0) + (it->first % 3 == 0)
+                                    + (it->first % 5 == 0) + (it->first % 7 == 0);
+                    CHECK(it->second.getNeighbours().size() == divisors);
+                }
+            }
+        }
+
+        SECTION("Connect/Disconnect nodes after creation")
+        {
+            for (int i = 10; i <= 100; ++i)
+                graph.addNode(i);
+
+            for (int i = 10; i <= 100; ++i)
+            {
+
+                //if the node with data i is divided by any of the prime nodes, we create a link
+                if (i % 2 == 0)
+                    graph.connectNodes(graph.findNode(i), it2);
+                if (i % 3 == 0)
+                    graph.connectNodes(graph.findNode(i), it3);
+                if (i % 5 == 0)
+                    graph.connectNodes(graph.findNode(i), it5);
+                if (i % 7 == 0)
+                    graph.connectNodes(graph.findNode(i), it7);
+
+            }
+
+            CHECK(it2->second.getNeighbours().size() == (100 / 2) - (9 / 2));
+            CHECK(it3->second.getNeighbours().size() == (100 / 3) - (9 / 3));
+            CHECK(it5->second.getNeighbours().size() == (100 / 5) - (9 / 5));
+            CHECK(it7->second.getNeighbours().size() == (100 / 7) - (9 / 7));
+
+            for (auto it = graph.begin(); it != graph.end(); it++)
+            {
+                if (it != it2 and it != it3 and it != it5 and it != it7)
+                {
+                    unsigned long divisors = (it->first % 2 == 0) + (it->first % 3 == 0)
+                                    + (it->first % 5 == 0) + (it->first % 7 == 0);
+                    CHECK(it->second.getNeighbours().size() == divisors);
+                }
+            }
+
+            SECTION("Disconnect Nodes")
+            {
+                for (int i = 10; i <= 100; ++i)
+                {
+                    //if the node with data i is divided by any of the prime nodes, we delete the link
+                    if (i % 2 == 0)
+                        graph.disconnectNodes(graph.findNode(i), it2);
+                    if (i % 3 == 0)
+                        graph.disconnectNodes(graph.findNode(i), it3);
+                    if (i % 5 == 0)
+                        graph.disconnectNodes(graph.findNode(i), it5);
+                    if (i % 7 == 0)
+                        graph.disconnectNodes(graph.findNode(i), it7);
+
+                }
+
+                //disconnecting nodes that weren't connected should do nothing
+                CHECK_NOTHROW(graph.disconnectNodes(it2, it3));
+            }
+        }
+
+
+
     }
 
 }
