@@ -32,7 +32,6 @@ template<typename T>
 struct NodePair
 {
     NodeIterator_t<T> current;
-    NodeIterator_t<T> parent;
     long unsigned indexParent;
 };
 
@@ -64,7 +63,7 @@ void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T>
 
     std::set<T> explored = {start->first};
     queue.push_back(start);
-    history.push_back({start, start, 0});
+    history.push_back({start, 0});
 
     if (start->first == searchedValue)
     {
@@ -85,7 +84,7 @@ void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T>
             {
                 explored.insert(next->first);
                 queue.push_back(next->second->getIterator());
-                history.push_back({next->second->getIterator(), current, indexCurrent});
+                history.push_back({next->second->getIterator(), indexCurrent});
             }
 
             if (next->first == searchedValue)
