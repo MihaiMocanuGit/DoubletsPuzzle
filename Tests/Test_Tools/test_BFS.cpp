@@ -109,7 +109,8 @@ TEST_CASE("BFS", "[BFS]")
         CHECK(solution.size() == 5);
         CHECK(solution[0]->first == 5*5);
         CHECK(solution[1]->first == 5);
-        CHECK(solution[2]->first == 5*7);
+        CHECK(solution[2]->first == 5*7);   //this might be implementation specific of std::set on ints, not sure.
+                                            // It could as well be: k * 5 * 7, for any K natural non zero s.t k <= 100 / (5*7)
         CHECK(solution[3]->first == 7);
         CHECK(solution[4]->first == 7*7);
 
