@@ -9,7 +9,7 @@
 
 class Generator
 {
-    usinggit status WordMap_t = std::unordered_map<std::string, std::unordered_set<std::string>>;
+    using WordMap_t = std::unordered_map<std::string, std::unordered_set<std::string>>;
 private:
     std::string m_startingWord;
     std::string m_filePath;
