@@ -13,7 +13,7 @@ TEST_CASE("BFS", "[BFS]")
     auto it7 = graph.addNode(7);
 
 
-    SECTION("Straight line near")
+    SECTION("Small Straight line")
     {
         graph.connectNodes(it2, it3);
         graph.connectNodes(it3, it5);
@@ -32,7 +32,7 @@ TEST_CASE("BFS", "[BFS]")
 
     }
 
-    SECTION("Straight line with branches near")
+    SECTION("small Straight line with some branches")
     {
         graph.connectNodes(it2, it3);
         graph.connectNodes(it3, it5);
@@ -117,5 +117,28 @@ TEST_CASE("BFS", "[BFS]")
         Tools::BFS(it2, -1, solution);
         CHECK(solution.empty());
 
+    }
+
+    SECTION("Graph with words")
+    {
+        Graph<std::string> graphStr;
+
+        auto itAnna = graphStr.addNode(std::string("Anna"));
+        auto itAre = graphStr.addNode(std::string("are"));
+        auto itMere = graphStr.addNode(std::string("mere"));
+        auto itPaul = graphStr.addNode(std::string("Paul"));
+        auto itNu = graphStr.addNode(std::string("nu"));
+
+        graphStr.connectNodes(itAnna, itAre);
+        graphStr.connectNodes(itAre, itMere);
+
+        graphStr.connectNodes(itPaul, itNu);
+
+        Tools::Solution_t<std::string> solution;
+        Tools::BFS(itAnna, std::string("mere"), solution);
+        CHECK(solution.size() == 3);
+        CHECK(solution[0]->first == std::string("mere"));
+        CHECK(solution[1]->first == std::string("are"));
+        CHECK(solution[2]->first == std::string("Anna"));
     }
 }
