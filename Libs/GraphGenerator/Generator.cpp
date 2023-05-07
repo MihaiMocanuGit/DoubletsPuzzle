@@ -18,7 +18,8 @@ void Generator::m_insertIntoMap()
     while(std::getline(inputFile, word))
     {
         //we remove the '\r';
-        word.pop_back();
+        if (word[word.size() - 1] == '\r')
+            word.pop_back();
 
         if (word.size() == WORD_SIZE)
         {
@@ -63,22 +64,28 @@ const Graph<std::string> &Generator::generateGraph()
     //m_generateStartingKey();
     m_insertIntoMap();
 
+    erase_if(m_map,[](const auto &pair)->bool{ return pair.second.size() <= 1;});
+
+
     m_graph = Graph<std::string>();
     for (const auto &pair : m_map)
     {
         MapNodesPtr_t<std::string> neighboursPtr = {};
         for (const auto &elem : pair.second)
         {
-            try
+            MapNodes_t<std::string>::iterator itCurrent = m_graph.findNode(elem);
+            if (itCurrent == m_graph.end())
+                itCurrent = m_graph.addNode(elem, neighboursPtr);
+            else
             {
-                auto it = m_graph.addNode(elem, neighboursPtr);
-                neighboursPtr.insert(std::make_pair(elem, &(it->second)));
+                for (const auto &neighbour : neighboursPtr)
+                {
+                    m_graph.connectNodes(itCurrent, neighbour.second->getIterator());
+                }
+
             }
-            catch (std::logic_error err)
-            {
-                auto it = m_graph.findNode(elem);
-                neighboursPtr.insert(std::make_pair(elem, &(it->second)));
-            }
+            neighboursPtr.insert({elem, &(itCurrent->second)});
+
         }
     }
     return m_graph;

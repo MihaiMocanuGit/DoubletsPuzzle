@@ -8,7 +8,7 @@ int main()
     Generator generator("same", "words_alpha.txt");
     generator.generateGraph();
 
-    Tools::Solution_t<std::string> solution = generator.findPath("case");
+    Tools::Solution_t<std::string> solution = generator.findPath("cost");
 
     for (const auto &element : solution)
         std::cout << element->first << '\t';
