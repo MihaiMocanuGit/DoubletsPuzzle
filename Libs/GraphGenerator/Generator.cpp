@@ -93,8 +93,10 @@ const Graph<std::string> &Generator::generateGraph()
 
 Tools::Solution_t <std::string> Generator::findPath(const std::string &searchedWord)
 {
-    Tools::Solution_t<std::string> solution;
+    Tools::Solution_t<std::string> solution = {};
     auto itStart = m_graph.findNode(m_startingWord);
-    Tools::BFS(itStart, searchedWord, solution);
+
+    if (itStart != m_graph.end())
+        Tools::BFS(itStart, searchedWord, solution);
     return solution;
 }
