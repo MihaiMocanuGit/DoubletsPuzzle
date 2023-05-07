@@ -5,10 +5,10 @@
 #include "Libs/GraphGenerator/Generator.h"
 int main()
 {
-    Generator generator("same", "test.txt");
+    Generator generator("same", "words_alpha.txt");
     generator.generateGraph();
 
-    Tools::Solution_t<std::string> solution = generator.findPath("came");
+    Tools::Solution_t<std::string> solution = generator.findPath("case");
 
     for (const auto &element : solution)
         std::cout << element->first << '\t';

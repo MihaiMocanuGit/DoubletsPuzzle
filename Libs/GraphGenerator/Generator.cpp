@@ -18,7 +18,7 @@ void Generator::m_insertIntoMap()
     while(std::getline(inputFile, word))
     {
         //we remove the '\r';
-        //word.pop_back();
+        word.pop_back();
 
         if (word.size() == WORD_SIZE)
         {
@@ -55,11 +55,12 @@ void Generator::m_generateStartingKey()
 
         m_map.insert({wildCardWord, {m_startingWord}});
     }
+
 }
 
 const Graph<std::string> &Generator::generateGraph()
 {
-    m_generateStartingKey();
+    //m_generateStartingKey();
     m_insertIntoMap();
 
     m_graph = Graph<std::string>();
