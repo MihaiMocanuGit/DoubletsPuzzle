@@ -50,8 +50,7 @@ void generateSolution(const std::deque<Private::NodePair<T>> &history, Solution_
     }
 }
 
-}
-
+} //end namespace Private
 
 template<typename T>
 void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath)

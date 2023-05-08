@@ -1,10 +1,13 @@
 #include <iostream>
 
-#include "Libs/Graph/Graph.h"
-#include "Libs/Tools/BFS.h"
-#include "Libs/GraphGenerator/Generator.h"
+#include "Libs/Application/Application.h"
+
 int main()
 {
+    Application app;
+
+    app.startAutomaticMode();
+    /*
     Generator generator("words_alpha.txt");
     generator.generateGraph(5);
 
@@ -13,5 +16,8 @@ int main()
 
     for (const auto &element : solution)
         std::cout << element->first << '\t';
+    */
+
+
     return 0;
 }
