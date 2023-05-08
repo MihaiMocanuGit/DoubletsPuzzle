@@ -5,6 +5,12 @@
 #include <utility>
 #include <iostream>
 
+
+Generator::Generator(std::string filePath) : m_filePath{std::move(filePath)}
+{
+
+}
+
 void Generator::m_insertIntoMap()
 {
     std::ifstream inputFile;
@@ -12,7 +18,7 @@ void Generator::m_insertIntoMap()
     if (inputFile.fail())
         throw std::invalid_argument("Failed to open file!");
 
-    const int WORD_SIZE = m_startingWord.size();
+    const unsigned int WORD_SIZE = m_noLetters;
 
     std::string word;
     while(std::getline(inputFile, word))
@@ -38,47 +44,26 @@ void Generator::m_insertIntoMap()
         }
 
     }
+
+    inputFile.close();
 }
 
 
-Generator::Generator(std::string startingWord, std::string filePath)
-                : m_startingWord{std::move(startingWord)}, m_filePath{std::move(filePath)}
+
+void Generator::m_extractGraph()
 {
-
-}
-
-void Generator::m_generateStartingKey()
-{
-    for (int i = 0; i < m_startingWord.size(); ++i)
-    {
-        std::string wildCardWord = m_startingWord;
-        wildCardWord[i] = '*';
-
-        m_map.insert({wildCardWord, {m_startingWord}});
-    }
-
-}
-
-const Graph<std::string> &Generator::generateGraph()
-{
-    //m_generateStartingKey();
-    m_insertIntoMap();
-
-    erase_if(m_map,[](const auto &pair)->bool{ return pair.second.size() <= 1;});
-
-
     m_graph = Graph<std::string>();
-    for (const auto &pair : m_map)
+    for (const auto &pair: m_map)
     {
         MapNodesPtr_t<std::string> neighboursPtr = {};
-        for (const auto &elem : pair.second)
+        for (const auto &elem: pair.second)
         {
             MapNodes_t<std::string>::iterator itCurrent = m_graph.findNode(elem);
             if (itCurrent == m_graph.end())
                 itCurrent = m_graph.addNode(elem, neighboursPtr);
             else
             {
-                for (const auto &neighbour : neighboursPtr)
+                for (const auto &neighbour: neighboursPtr)
                 {
                     m_graph.connectNodes(itCurrent, neighbour.second->getIterator());
                 }
@@ -88,15 +73,37 @@ const Graph<std::string> &Generator::generateGraph()
 
         }
     }
+
+}
+
+const Graph<std::string> &Generator::generateGraph(unsigned int noLetters)
+{
+    if(m_noLetters != noLetters)
+    {
+        m_noLetters = noLetters;
+
+        m_insertIntoMap();
+
+        erase_if(m_map, [](const auto &pair) -> bool
+        { return pair.second.size() <= 1; });
+
+        m_extractGraph();
+    }
+
+
     return m_graph;
 }
 
-Tools::Solution_t <std::string> Generator::findPath(const std::string &searchedWord)
+Tools::Solution_t <std::string> Generator::findPath(const std::string &startingWord, const std::string &searchedWord)
 {
+    if (startingWord.size() != searchedWord.size() or startingWord.size() != m_noLetters)
+        throw std::runtime_error("wrong word size");
+
     Tools::Solution_t<std::string> solution = {};
-    auto itStart = m_graph.findNode(m_startingWord);
+    auto itStart = m_graph.findNode(startingWord);
 
     if (itStart != m_graph.end())
         Tools::BFS(itStart, searchedWord, solution);
     return solution;
 }
+

@@ -11,19 +11,19 @@ class Generator
 {
     using WordMap_t = std::unordered_map<std::string, std::unordered_set<std::string>>;
 private:
-    std::string m_startingWord;
     std::string m_filePath;
+    unsigned int m_noLetters = 0;
 
     WordMap_t m_map = {};
     Graph<std::string> m_graph = {};
 
-    void m_generateStartingKey();
     void m_insertIntoMap();
+    void m_extractGraph();
 public:
-    Generator(std::string startingWord, std::string filePath);
-    const Graph<std::string> &generateGraph();
+    explicit Generator(std::string filePath);
+    const Graph<std::string> &generateGraph(unsigned int noLetters);
 
-    Tools::Solution_t<std::string> findPath(const std::string &searchedWord);
+    Tools::Solution_t<std::string> findPath(const std::string &startingWord, const std::string &searchedWord);
 
 
 
