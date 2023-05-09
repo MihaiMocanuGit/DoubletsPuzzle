@@ -45,10 +45,10 @@ public:
 
     const MapNodesPtr_t<T> &getNeighbours() const;
 
-    const MapNodesPtr_t<T>::iterator &beginNeighbours() const;
+    MapNodesPtr_t<T>::const_iterator beginNeighbours() const;
     MapNodesPtr_t<T>::iterator beginNeighbours();
 
-    const MapNodesPtr_t<T>::iterator &endNeighbours() const;
+    MapNodesPtr_t<T>::const_iterator endNeighbours() const;
     MapNodesPtr_t<T>::iterator endNeighbours();
 
 };
@@ -139,7 +139,7 @@ std::map<T, Node<T> *>::iterator Node<T>::endNeighbours()
 }
 
 template<typename T>
-const std::map<T, Node<T> *>::iterator &Node<T>::endNeighbours() const
+std::map<T, Node<T> *>::const_iterator Node<T>::endNeighbours() const
 {
     return m_neighbourNodesPtr.end();
 }
@@ -151,7 +151,7 @@ std::map<T, Node<T> *>::iterator Node<T>::beginNeighbours()
 }
 
 template<typename T>
-const std::map<T, Node<T> *>::iterator &Node<T>::beginNeighbours() const
+std::map<T, Node<T> *>::const_iterator Node<T>::beginNeighbours() const
 {
     return m_neighbourNodesPtr.begin();
 }
