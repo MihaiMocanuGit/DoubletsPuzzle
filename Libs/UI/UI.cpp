@@ -57,5 +57,16 @@ bool UI::askForYesNo(const std::string &message, bool &output, bool yesDefault)
     return true;
 }
 
+bool UI::askForInteger(const std::string &message, int &output)
+{
+    printMessage(message);
+
+    m_printInputTemplate();
+    //TODO: Validate output to be a number
+    std::cin >> output;
+
+    return true;
+}
+
 
 

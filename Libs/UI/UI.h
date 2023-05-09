@@ -22,6 +22,7 @@ public:
 
     static bool askForWord(const std::string &message, std::string &output);
     static bool askForYesNo(const std::string &message, bool &output, bool yesDefault = true);
+    static bool askForInteger(const std::string &message, int &output);
 };
 
 

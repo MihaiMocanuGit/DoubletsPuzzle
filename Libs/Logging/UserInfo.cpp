@@ -9,7 +9,7 @@ void UserInfo::initStartingInfo(const std::string &startingWord, const std::stri
                                 const AppClock_t &start)
 {
     if (startingWord.size() != finalWord.size())
-        throw std::logic_error("Word size does not match");
+        throw std::logic_error("Word size does not match!");
 
     m_startingWord = startingWord;
     m_finalWord = finalWord;
@@ -31,4 +31,12 @@ void UserInfo::madeMove(int noMadeMoves)
 void UserInfo::finishTime(const AppClock_t &finish)
 {
     m_finishTime = finish;
+}
+
+void UserInfo::usedWord(const std::string &usedWord)
+{
+    if (usedWord.size() != m_startingWord.size())
+        throw std::logic_error("Size of words does not match!");
+
+    m_wordsUsed.push_back(usedWord);
 }

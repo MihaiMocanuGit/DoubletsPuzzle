@@ -7,17 +7,17 @@
 namespace Tools
 {
 template<typename T>
-using NodeIterator_t = typename MapNodes_t<T>::iterator;
+using NodeCIterator_t = typename MapNodes_t<T>::const_iterator;
 
 template<typename T>
-using Solution_t = std::deque<NodeIterator_t<T>>;
+using Solution_t = std::deque<NodeCIterator_t<T>>;
 
 
 template<typename T>
-void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath);
+void BFS(const NodeCIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath);
 
 template<typename T>
-void searchNodesAtDistance(const NodeIterator_t <T> &start, long unsigned  distance, Solution_t <T> &out_solutionPath);
+void searchNodesAtDistance(const NodeCIterator_t <T> &start, long unsigned  distance, Solution_t <T> &out_solutionPath);
 
 }
 
@@ -34,14 +34,14 @@ namespace Private
 template<typename T>
 struct NodePair
 {
-    NodeIterator_t<T> current;
+    NodeCIterator_t<T> current;
     long unsigned indexParent;
 };
 
 template<typename T>
 void generateSolution(const std::deque<Private::NodePair<T>> &history, Solution_t<T> &out_solutionPath)
 {
-    NodeIterator_t<T> current = history.back().current;
+    NodeCIterator_t<T> current = history.back().current;
     long unsigned indexCurrent = history.size() - 1;
 
     out_solutionPath.push_back(current);
@@ -56,11 +56,11 @@ void generateSolution(const std::deque<Private::NodePair<T>> &history, Solution_
 } //end namespace Private
 
 template<typename T>
-void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath)
+void BFS(const NodeCIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath)
 {
     out_solutionPath = {};
 
-    std::deque<NodeIterator_t<T>> queue;
+    std::deque<NodeCIterator_t<T>> queue;
     std::deque<Private::NodePair<T>> history;
 
     std::set<T> explored = {start->first};
@@ -76,7 +76,7 @@ void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T>
     long unsigned indexCurrent = 0;
     while (not queue.empty())
     {
-        NodeIterator_t<T> current = queue.front();
+        NodeCIterator_t<T> current = queue.front();
         queue.pop_front();
 
 
@@ -100,11 +100,11 @@ void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T>
 }
 
 template<typename T>
-void searchNodesAtDistance(const NodeIterator_t <T> &start, long unsigned  distance, Solution_t <T> &out_solutionPath)
+void searchNodesAtDistance(const NodeCIterator_t <T> &start, long unsigned  distance, Solution_t <T> &out_solutionPath)
 {
     out_solutionPath = {};
 
-    std::deque<std::pair< NodeIterator_t<T>, long unsigned>> queue;
+    std::deque<std::pair< NodeCIterator_t<T>, long unsigned>> queue;
 
     std::set<T> explored = {start->first};
     queue.push_back({start, 0});
@@ -116,7 +116,7 @@ void searchNodesAtDistance(const NodeIterator_t <T> &start, long unsigned  dista
     }
     while (not queue.empty())
     {
-        NodeIterator_t<T> current = queue.front().first;
+        NodeCIterator_t<T> current = queue.front().first;
         long unsigned currentDistance = queue.front().second;
         queue.pop_front();
 

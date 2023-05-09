@@ -36,10 +36,10 @@ public:
 
     const MapNodes_t<T> &getNodes() const;
 
-    const MapNodes_t<T>::iterator &begin() const;
+    MapNodes_t<T>::const_iterator begin() const;
     MapNodes_t<T>::iterator begin();
 
-    const MapNodes_t<T>::iterator &end() const;
+    MapNodes_t<T>::const_iterator end() const;
     MapNodes_t<T>::iterator end();
 
     unsigned int size() const;
@@ -153,7 +153,7 @@ const MapNodes_t<T> &Graph<T>::getNodes() const
 }
 
 template<typename T>
-const std::map<T, Node<T>>::iterator &Graph<T>::begin() const
+std::map<T, Node<T>>::const_iterator Graph<T>::begin() const
 {
     return m_nodes.begin();
 }
@@ -165,7 +165,7 @@ std::map<T, Node<T>>::iterator Graph<T>::begin()
 }
 
 template<typename T>
-const std::map<T, Node<T>>::iterator &Graph<T>::end() const
+std::map<T, Node<T>>::const_iterator Graph<T>::end() const
 {
     return m_nodes.end();
 }

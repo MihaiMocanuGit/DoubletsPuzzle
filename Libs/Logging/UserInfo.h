@@ -21,13 +21,16 @@ private:
     AppClock_t m_finishTime;
 
 public:
+    UserInfo() = default;
     explicit UserInfo(std::string username);
+
 
     void initStartingInfo(const std::string &startingWord, const std::string &finalWord,
                           int optimalNoMoves, const AppClock_t &start);
 
     void usedHint(int noUsedHints = 1);
     void madeMove(int noMadeMoves = 1);
+    void usedWord(const std::string &usedWord);
 
     void finishTime(const AppClock_t &finish);
 };

@@ -34,3 +34,45 @@ void Application::startAutomaticMode()
     UI::printMessage("Goodbye!");
 }
 
+void Application::startPlayingMode()
+{
+    std::string username;
+    UI::askForWord("What's your username?", username);
+
+    int wordLength;
+    UI::askForInteger("How many letters shall the word have?", wordLength);
+
+    Generator generator("words_alpha.txt");
+
+    const Graph<std::string> &GRAPH = generator.generateGraph(wordLength);
+    Tools::Solution_t<std::string> searchedChainLength;
+
+    //we are searching for a node which has quite a bit of neighbours;
+    //We won't stay to find the node with the most neighbours, we are going to stop after we found a certain
+    //number of local maximums
+    int maxNeighbours = -1;
+    MapNodes_t<std::string>::const_iterator maxIterator;
+    int maximumsFoundUntilStopping = 10;
+    for (auto nodeIt = GRAPH.begin(); nodeIt != GRAPH.end(); nodeIt++)
+    {
+        if (maximumsFoundUntilStopping <= 0)
+            break;
+        if (nodeIt->second.getNeighbours().size() > maxNeighbours)
+        {
+            maxIterator = nodeIt;
+            maxNeighbours = nodeIt->second.getNeighbours().size();
+            maximumsFoundUntilStopping--;
+        }
+    }
+
+    Tools::Solution_t<std::string> finalWords;
+    int maxDistance = 10;
+    do
+    {
+        //Tools::searchNodesAtDistance<std::string>(maxIterator, maxDistance, finalWords);
+        maxDistance--;
+    } while (finalWords.empty());
+
+
+}
+

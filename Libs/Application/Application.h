@@ -1,15 +1,18 @@
 #pragma once
 #include "../UI/UI.h"
+#include "../Logging/UserInfo.h"
 
 
 class Application
 {
 private:
-    UI m_ui = {};
+
+    UserInfo user;
 public:
     Application() = default;
 
     void startAutomaticMode();
+    void startPlayingMode();
 
 
 };
