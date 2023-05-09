@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <functional>
 
 #include "../Tools/BFS.h"
 
@@ -20,9 +21,11 @@ public:
     template <typename T>
     static void printSolution(const std::string &message, const Tools::Solution_t<T> &solution);
 
-    static bool askForWord(const std::string &message, std::string &output);
+    static bool askForWord(const std::string &message, std::string &output,
+                           const std::function< bool(const std::string &) > & = [](const std::string & word){return true;});
     static bool askForYesNo(const std::string &message, bool &output, bool yesDefault = true);
-    static bool askForInteger(const std::string &message, int &output);
+    static bool askForInteger(const std::string &message, int &output,
+                              const std::function< bool(int) >& validator = [](int number){return true;});
 };
 
 

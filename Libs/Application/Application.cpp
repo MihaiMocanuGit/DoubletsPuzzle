@@ -50,29 +50,58 @@ void Application::startPlayingMode()
     //we are searching for a node which has quite a bit of neighbours;
     //We won't stay to find the node with the most neighbours, we are going to stop after we found a certain
     //number of local maximums
-    int maxNeighbours = -1;
-    MapNodes_t<std::string>::const_iterator maxIterator;
+    unsigned long maxNeighbours = 0;
+    auto maxIterator = GRAPH.cend();
     int maximumsFoundUntilStopping = 10;
-    for (auto nodeIt = GRAPH.begin(); nodeIt != GRAPH.end(); nodeIt++)
+    for (auto nodeIt = GRAPH.cbegin(); nodeIt != GRAPH.cend(); nodeIt++)
     {
         if (maximumsFoundUntilStopping <= 0)
             break;
-        if (nodeIt->second.getNeighbours().size() > maxNeighbours)
+        unsigned long noNeighbours = nodeIt->second.getNeighbours().size();
+        if (noNeighbours >= maxNeighbours)
         {
             maxIterator = nodeIt;
-            maxNeighbours = nodeIt->second.getNeighbours().size();
+            maxNeighbours = noNeighbours;
             maximumsFoundUntilStopping--;
         }
     }
 
+    if (maxIterator == GRAPH.cend())
+    {
+        UI::printMessage("Could not find a word with so many letters!");
+        return;
+    }
+    //we are searching for the biggest chain smaller than 10
     Tools::Solution_t<std::string> finalWords;
     int maxDistance = 10;
     do
     {
-        //Tools::searchNodesAtDistance<std::string>(maxIterator, maxDistance, finalWords);
+        Tools::searchNodesAtDistance<std::string>(maxIterator, maxDistance, finalWords);
         maxDistance--;
     } while (finalWords.empty());
+    maxDistance++;
 
+    if (maxDistance < 3)
+    {
+        UI::printMessage("Could not generate a link between two words of the given size that contains more"
+                         " then 2 words, only found a link of " + std::to_string(maxDistance) + "!");
+        return;
+    }
 
+    std::string messageAskDifficulty = "Choose difficulty, insert a number between 3 and " + std::to_string(maxDistance);
+    messageAskDifficulty += "\nYour choice will represent the number of perfect moves you will have to do in order to get"
+                            "to the final word";
+
+    int length;
+    UI::askForInteger(messageAskDifficulty, length, [&](int number)->bool{
+        return number >= 3 and number <= maxDistance;
+    });
+
+    Tools::searchNodesAtDistance<std::string>(maxIterator, length, finalWords);
+
+    std::string startingWord = maxIterator->first;
+    std::string finalWord = finalWords[0]->first;
+
+    std::cout << startingWord << '\t' << finalWord;
 }
 

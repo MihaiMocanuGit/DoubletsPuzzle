@@ -1,6 +1,7 @@
 #include "UI.h"
 
 #include <iostream>
+#include <limits>
 
 void UI::m_printInputTemplate()
 {
@@ -15,13 +16,27 @@ void UI::printMessage(const std::string &message, bool newLineAfter)
         std::cout << std::endl;
 }
 
-bool UI::askForWord(const std::string &message, std::string &output)
+bool UI::askForWord(const std::string &message, std::string &output,
+                    const std::function< bool(const std::string &) > &validator)
 {
     printMessage(message);
 
     m_printInputTemplate();
-    std::cin >> output;
+    std::string result;
+    std::cin >> result;
 
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (not validator(result))
+    {
+        printMessage("Invalid word, try again");
+        m_printInputTemplate();
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin >> result;
+    }
+
+    output = result;
     return true;
 }
 
@@ -57,16 +72,31 @@ bool UI::askForYesNo(const std::string &message, bool &output, bool yesDefault)
     return true;
 }
 
-bool UI::askForInteger(const std::string &message, int &output)
+bool UI::askForInteger(const std::string &message, int &output, const std::function< bool(int) > &validator)
 {
     printMessage(message);
 
     m_printInputTemplate();
-    //TODO: Validate output to be a number
-    std::cin >> output;
+    int result;
+    std::cin >> result;
+
+    while (not validator(result))
+    {
+        printMessage("Invalid integer, try again");
+        m_printInputTemplate();
+
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin >> result;
+
+    }
+
+    output = result;
 
     return true;
 }
+
+
 
 
 
