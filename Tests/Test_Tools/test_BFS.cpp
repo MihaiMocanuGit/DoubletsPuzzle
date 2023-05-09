@@ -142,3 +142,194 @@ TEST_CASE("BFS", "[BFS]")
         CHECK(solution[2]->first == std::string("Anna"));
     }
 }
+
+TEST_CASE("BFS Find nodes at distance", "[BFS]")
+{
+    Graph<int> graph;
+
+    //                      5
+    //                      3
+    //                      1
+    //                      |
+    //          -6 -4 -2 -- 0 -- 2 4 6
+    //                      |
+    //                     -1
+    //                     -3
+    //                     -5
+
+
+    auto itParent = graph.addNode(0);
+
+    auto itPrevious = itParent;
+    for (int i = 1; i <= 5; ++i)
+    {
+        auto itCurrent = graph.addNode(2 * i);
+        graph.connectNodes(itCurrent, itPrevious);
+
+        itPrevious = itCurrent;
+    }
+
+    itPrevious = itParent;
+    for (int i = 1; i <= 5; ++i)
+    {
+        auto itCurrent = graph.addNode(2 * i - 1);
+        graph.connectNodes(itCurrent, itPrevious);
+
+        itPrevious = itCurrent;
+    }
+
+    itPrevious = itParent;
+    for (int i = 1; i <= 5; ++i)
+    {
+        auto itCurrent = graph.addNode(-2 * i);
+        graph.connectNodes(itCurrent, itPrevious);
+
+        itPrevious = itCurrent;
+    }
+
+    itPrevious = itParent;
+    for (int i = 1; i <= 5; ++i)
+    {
+        auto itCurrent = graph.addNode(-2 * i + 1);
+        graph.connectNodes(itCurrent, itPrevious);
+
+        itPrevious = itCurrent;
+    }
+
+    SECTION("Distance 0")
+    {
+        Tools::Solution_t<int> solution;
+        Tools::searchNodesAtDistance<int>(itParent, 0, solution);
+
+        CHECK(solution.size() == 1);
+        CHECK(solution[0]->first == 0);
+    }
+
+    SECTION("Distance 1-5")
+    {
+        Tools::Solution_t<int> solution;
+        Tools::searchNodesAtDistance<int>(itParent, 1, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2)) != solution.end());
+
+        Tools::searchNodesAtDistance<int>(itParent, 2, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 2)) != solution.end());
+
+
+        Tools::searchNodesAtDistance<int>(itParent, 3, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 2*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 2*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 2*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 2*2)) != solution.end());
+
+        Tools::searchNodesAtDistance<int>(itParent, 4, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 3*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 3*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 3*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 3*2)) != solution.end());
+
+        Tools::searchNodesAtDistance<int>(itParent, 5, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 4*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 4*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 4*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 4*2)) != solution.end());
+    }
+
+    SECTION("Invalid distance")
+    {
+        Tools::Solution_t<int> solution;
+        Tools::searchNodesAtDistance<int>(itParent, 6, solution);
+
+        CHECK(solution.empty());
+
+
+        Tools::searchNodesAtDistance<int>(itParent, -1, solution);
+
+        CHECK(solution.empty());
+    }
+
+    SECTION("Modified graph 1-5")
+    {
+        graph.connectNodes(graph.findNode(1), graph.findNode(-1));
+        graph.connectNodes(graph.findNode(2), graph.findNode(-2));
+
+        graph.connectNodes(graph.findNode(3), graph.findNode(-3));
+        graph.connectNodes(graph.findNode(4), graph.findNode(-4));
+
+        graph.connectNodes(graph.findNode(5), graph.findNode(-5));
+        graph.connectNodes(graph.findNode(6), graph.findNode(-6));
+
+        graph.connectNodes(graph.findNode(8), graph.findNode(-8));
+        graph.connectNodes(graph.findNode(8), graph.findNode(-8));
+
+
+        Tools::Solution_t<int> solution;
+        Tools::searchNodesAtDistance<int>(itParent, 1, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2)) != solution.end());
+
+        Tools::searchNodesAtDistance<int>(itParent, 2, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 2)) != solution.end());
+
+
+        Tools::searchNodesAtDistance<int>(itParent, 3, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 2*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 2*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 2*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 2*2)) != solution.end());
+
+        Tools::searchNodesAtDistance<int>(itParent, 4, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 3*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 3*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 3*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 3*2)) != solution.end());
+
+        Tools::searchNodesAtDistance<int>(itParent, 5, solution);
+
+        CHECK(solution.size() == 4);
+
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(1 + 4*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-1 - 4*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(2 + 4*2)) != solution.end());
+        CHECK(std::find(solution.begin(), solution.end(), graph.findNode(-2 - 4*2)) != solution.end());
+    }
+
+
+}

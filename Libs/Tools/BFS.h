@@ -16,6 +16,9 @@ using Solution_t = std::deque<NodeIterator_t<T>>;
 template<typename T>
 void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T> &out_solutionPath);
 
+template<typename T>
+void searchNodesAtDistance(const NodeIterator_t <T> &start, long unsigned  distance, Solution_t <T> &out_solutionPath);
+
 }
 
 
@@ -96,5 +99,42 @@ void BFS(const NodeIterator_t <T> &start, const T &searchedValue, Solution_t <T>
     }
 }
 
+template<typename T>
+void searchNodesAtDistance(const NodeIterator_t <T> &start, long unsigned  distance, Solution_t <T> &out_solutionPath)
+{
+    out_solutionPath = {};
 
+    std::deque<std::pair< NodeIterator_t<T>, long unsigned>> queue;
+
+    std::set<T> explored = {start->first};
+    queue.push_back({start, 0});
+
+    if (distance == 0)
+    {
+        out_solutionPath.push_back(start);
+        return;
+    }
+    while (not queue.empty())
+    {
+        NodeIterator_t<T> current = queue.front().first;
+        long unsigned currentDistance = queue.front().second;
+        queue.pop_front();
+
+        //we go through the neighbours of the current node
+        for (auto next = current->second.beginNeighbours(); next != current->second.endNeighbours(); next++)
+        {
+            if (explored.find(next->first) == explored.end())
+            {
+                explored.insert(next->first);
+
+                if (currentDistance + 1 < distance)
+                    queue.push_back({next->second->getIterator(), currentDistance + 1});
+                else
+                    out_solutionPath.push_back(next->second->getIterator());
+
+            }
+        }
+    }
 }
+
+} //end namespace Tools
