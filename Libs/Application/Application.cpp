@@ -2,7 +2,10 @@
 #include "../GraphGenerator/Generator.h"
 
 
+Application::Application() : m_generator{Generator(WORD_PATH)}
+{
 
+}
 
 void Application::startAutomaticMode()
 {
@@ -34,17 +37,10 @@ void Application::startAutomaticMode()
     UI::printMessage("Goodbye!");
 }
 
-void Application::startPlayingMode()
+bool Application::m_generateStartingWord(int wordLength, MapNodes_t<std::string>::const_iterator &out_startWordIt)
 {
-    std::string username;
-    UI::askForWord("What's your username?", username);
 
-    int wordLength;
-    UI::askForInteger("How many letters shall the word have?", wordLength);
-
-    Generator generator("words_alpha.txt");
-
-    const Graph<std::string> &GRAPH = generator.generateGraph(wordLength);
+    const Graph<std::string> &GRAPH = m_generator.generateGraph(wordLength);
     Tools::Solution_t<std::string> searchedChainLength;
 
     //we are searching for a node which has quite a bit of neighbours;
@@ -66,42 +62,83 @@ void Application::startPlayingMode()
         }
     }
 
+    out_startWordIt = maxIterator;
     if (maxIterator == GRAPH.cend())
     {
         UI::printMessage("Could not find a word with so many letters!");
-        return;
+        return false;
     }
-    //we are searching for the biggest chain smaller than 10
-    Tools::Solution_t<std::string> finalWords;
-    int maxDistance = 10;
+
+    return true;
+}
+
+
+bool Application::m_generateFinalWords(const MapNodes_t<std::string>::const_iterator &startWordIt,
+                                       Tools::Solution_t<std::string> &out_finalWords, int &out_maxDistance)
+{
+    out_maxDistance = 10;
     do
     {
-        Tools::searchNodesAtDistance<std::string>(maxIterator, maxDistance, finalWords);
-        maxDistance--;
-    } while (finalWords.empty());
-    maxDistance++;
+        Tools::searchNodesAtDistance<std::string>(startWordIt, out_maxDistance, out_finalWords);
+        out_maxDistance--;
+    } while (out_finalWords.empty());
+    out_maxDistance++;
 
-    if (maxDistance < 3)
+    if (out_maxDistance < 3)
     {
         UI::printMessage("Could not generate a link between two words of the given size that contains more"
-                         " then 2 words, only found a link of " + std::to_string(maxDistance) + "!");
-        return;
+                         " then 2 words, only found a link of " + std::to_string(out_maxDistance) + "!");
+        return false;
     }
-
+    return true;
+}
+bool Application::m_askForDifficulty(int maxDistance, int &out_difficulty)
+{
     std::string messageAskDifficulty = "Choose difficulty, insert a number between 3 and " + std::to_string(maxDistance);
     messageAskDifficulty += "\nYour choice will represent the number of perfect moves you will have to do in order to get"
-                            "to the final word";
+                            " to the final word";
 
     int length;
-    UI::askForInteger(messageAskDifficulty, length, [&](int number)->bool{
+    UI::askForInteger(messageAskDifficulty, length, [maxDistance](int number)->bool{
         return number >= 3 and number <= maxDistance;
     });
 
-    Tools::searchNodesAtDistance<std::string>(maxIterator, length, finalWords);
+    out_difficulty = length;
 
-    std::string startingWord = maxIterator->first;
+    return true;
+}
+void Application::startPlayingMode()
+{
+    std::string username;
+    UI::askForWord("What's your username?", username);
+    user = UserInfo(username);
+
+    int wordLength;
+    UI::askForInteger("How many letters shall the word have?", wordLength);
+    MapNodes_t<std::string>::const_iterator startWordIt;
+    if (not m_generateStartingWord(wordLength, startWordIt))
+    {
+
+    }
+
+    //we are searching for the biggest chain smaller than 10
+    Tools::Solution_t<std::string> finalWords;
+    int maxDistance;
+    m_generateFinalWords(startWordIt, finalWords, maxDistance);
+
+    int difficultyLength;
+    m_askForDifficulty(maxDistance, difficultyLength);
+
+    Tools::searchNodesAtDistance<std::string>(startWordIt, difficultyLength, finalWords);
+
+    std::string startingWord = startWordIt->first;
     std::string finalWord = finalWords[0]->first;
 
-    std::cout << startingWord << '\t' << finalWord;
+    user.initStartingInfo(startingWord, finalWord, difficultyLength, std::chrono::system_clock::now());
+
 }
+
+
+
+
 

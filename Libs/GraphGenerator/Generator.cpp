@@ -29,7 +29,7 @@ void Generator::m_insertIntoMap()
 
         if (word.size() == WORD_SIZE)
         {
-            for (int i = 0; i < WORD_SIZE; ++i)
+            for (unsigned int i = 0; i < WORD_SIZE; ++i)
             {
                 std::string wildCardWord = word;
                 wildCardWord[i] = '*';
