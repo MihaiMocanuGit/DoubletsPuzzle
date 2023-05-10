@@ -12,6 +12,7 @@ private:
     static constexpr std::string WORD_PATH = "words_alpha.txt";
 
     Generator m_generator;
+    int m_generateRandomNumber(int low, int high);
     bool m_generateStartingWord(int wordLength, MapNodes_t<std::string>::const_iterator &out_startWordIt);
     bool m_generateFinalWords(const MapNodes_t<std::string>::const_iterator &startWordIt,
                               Tools::Solution_t<std::string> &out_finalWords, int &out_maxDistance);
