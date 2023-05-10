@@ -231,6 +231,9 @@ void Application::startPlayingMode()
         do
         {
             std::string word;
+            //TODO: verification in UI does not work in our case
+            //  A mistake should be a move
+            //  Needs to be able to ask for hints
             UI::askForWord("Input your word", word, [=, this](const std::string &str) -> bool
             {
                 return m_checkWord(str, prevWord);
