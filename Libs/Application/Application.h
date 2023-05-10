@@ -17,11 +17,18 @@ private:
     bool m_generateFinalWords(const MapNodes_t<std::string>::const_iterator &startWordIt,
                               Tools::Solution_t<std::string> &out_finalWords, int &out_maxDistance);
     bool m_askForDifficulty(int maxDistance, int &out_difficulty);
+
+    bool m_initUser(std::string &out_startWord, std::string &out_finalWord, int &out_chainLength);
+
 public:
     Application();
 
     void startAutomaticMode();
     void startPlayingMode();
+    void startAnalyticsMode();
+
+    //this should ask the user what mode to play
+    void startApp();
 
 
 };

@@ -8,35 +8,6 @@ Application::Application() : m_generator{Generator(WORD_PATH)}
 
 }
 
-void Application::startAutomaticMode()
-{
-
-    UI::printMessage("Started Automatic Mode!");
-
-    bool continueGame;
-    do
-    {
-
-        std::string startingWord, finalWord;
-        bool status1 = UI::askForWord("Insert the starting word:", startingWord);
-        bool status2 = UI::askForWord("Insert the final word, they have to have the same size:", finalWord);
-
-        while (startingWord.size() != finalWord.size())
-            status2 = UI::askForWord("The size does not match, try another", finalWord);
-
-        Generator generator("words_alpha.txt");
-
-        generator.generateGraph(startingWord.size());
-
-        //https://lewiscarrollresources.net/doublets/puzzles.html
-        Tools::Solution_t<std::string> solution = generator.findPath(startingWord, finalWord);
-        UI::printSolution<std::string>("", solution);
-
-        UI::askForYesNo("Continue game?", continueGame);
-    }while(continueGame);
-
-    UI::printMessage("Goodbye!");
-}
 
 int Application::m_generateRandomNumber(int low, int high)
 {
@@ -109,7 +80,6 @@ bool Application::m_generateStartingWord(int wordLength, MapNodes_t<std::string>
     return true;
 }
 
-
 bool Application::m_generateFinalWords(const MapNodes_t<std::string>::const_iterator &startWordIt,
                                        Tools::Solution_t<std::string> &out_finalWords, int &out_maxDistance)
 {
@@ -129,6 +99,7 @@ bool Application::m_generateFinalWords(const MapNodes_t<std::string>::const_iter
     }
     return true;
 }
+
 bool Application::m_askForDifficulty(int maxDistance, int &out_difficulty)
 {
     std::string messageAskDifficulty = "Choose difficulty, insert a number between 3 and " + std::to_string(maxDistance);
@@ -144,7 +115,8 @@ bool Application::m_askForDifficulty(int maxDistance, int &out_difficulty)
 
     return true;
 }
-void Application::startPlayingMode()
+
+bool Application::m_initUser(std::string &out_startWord, std::string &out_finalWord, int &out_chainLength)
 {
     //we ask the user for a username, it should be composed of only one word, no spaces allowed;
     std::string username;
@@ -157,9 +129,8 @@ void Application::startPlayingMode()
     MapNodes_t<std::string>::const_iterator startWordIt;
     if (not m_generateStartingWord(wordLength, startWordIt))
     {
-        return;
+        return false;
     }
-    std::cout << startWordIt->first << "\n\n\n";
 
 
     //we are searching for the biggest chain of words, starting from the startWordIt. We ignore the chains bigger than 10
@@ -168,7 +139,7 @@ void Application::startPlayingMode()
 
     if (not m_generateFinalWords(startWordIt, finalWords, maxDistance))
     {
-        return;
+        return false;
     }
 
 
@@ -183,15 +154,53 @@ void Application::startPlayingMode()
     std::string startingWord = startWordIt->first;
     std::string finalWord = finalWords[m_generateRandomNumber(0, finalWords.size())]->first;
 
-    std::cout << finalWord << "\n\n\n";
     user.initStartingInfo(startingWord, finalWord, difficultyLength, std::chrono::system_clock::now());
 
-
+    out_startWord = startingWord;
+    out_finalWord = finalWord;
+    out_chainLength = difficultyLength;
+    return true;
 }
 
+void Application::startAutomaticMode()
+{
 
+    UI::printMessage("Started Automatic Mode!");
 
+    bool continueGame;
+    do
+    {
 
+        std::string startingWord, finalWord;
+        bool status1 = UI::askForWord("Insert the starting word:", startingWord);
+        bool status2 = UI::askForWord("Insert the final word, they have to have the same size:", finalWord);
+
+        while (startingWord.size() != finalWord.size())
+            status2 = UI::askForWord("The size does not match, try another", finalWord);
+
+        Generator generator("words_alpha.txt");
+
+        generator.generateGraph(startingWord.size());
+
+        //https://lewiscarrollresources.net/doublets/puzzles.html
+        Tools::Solution_t<std::string> solution = generator.findPath(startingWord, finalWord);
+        UI::printSolution<std::string>("", solution);
+
+        UI::askForYesNo("Continue game?", continueGame);
+    }while(continueGame);
+
+    UI::printMessage("Goodbye!");
+}
+
+void Application::startPlayingMode()
+{
+
+    std::string startWord, finalWord;
+    int chainLength;
+    //this function will ask the user for options in the terminal.
+    bool status = m_initUser(startWord, finalWord, chainLength);
+
+}
 
 
 
