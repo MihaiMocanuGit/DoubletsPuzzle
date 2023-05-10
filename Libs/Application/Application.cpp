@@ -158,7 +158,7 @@ bool Application::m_initUser(std::string &out_startWord, std::string &out_finalW
     Tools::searchNodesAtDistance<std::string>(startWordIt, difficultyLength, finalWords);
 
     std::string startingWord = startWordIt->first;
-    std::string finalWord = finalWords[m_generateRandomNumber(0, finalWords.size())]->first;
+    std::string finalWord = finalWords[m_generateRandomNumber(0, finalWords.size() - 1)]->first;
 
     user.initStartingInfo(startingWord, finalWord, difficultyLength, std::chrono::system_clock::now());
 
@@ -168,12 +168,31 @@ bool Application::m_initUser(std::string &out_startWord, std::string &out_finalW
     return true;
 }
 
-bool Application::m_checkWord(const std::string &prevWord, const std::string &nextWord)
+bool Application::m_askAndValidateNextWord(const std::string &prevWord, std::string &out_nextWord)
 {
+    std::string nextWord;
+    UI::askForWord("Insert your next move", nextWord);
+
     if (prevWord.size() != nextWord.size())
-        return false;
+    {
+        UI::printMessage("Word length does not match");
+        m_askForHint(prevWord);
+
+        out_nextWord = nextWord;
+        m_askAndValidateNextWord(prevWord, out_nextWord);
+        return true;
+    }
+
     if (m_generator.graph().findNode(nextWord) == m_generator.graph().cend())
-        return false;
+    {
+        UI::printMessage("Word does not exist");
+        user.madeMove();
+        m_askForHint(prevWord);
+
+        out_nextWord = nextWord;
+        m_askAndValidateNextWord(prevWord, out_nextWord);
+        return true;
+    }
 
     int noChanges = 0;
     for (unsigned int i = 0; i < prevWord.size(); ++i)
@@ -182,9 +201,17 @@ bool Application::m_checkWord(const std::string &prevWord, const std::string &ne
             noChanges++;
 
         if (noChanges >= 2)
-            return false;
+        {
+            UI::printMessage("You changed more than one letter");
+            m_askForHint(prevWord);
+            out_nextWord = nextWord;
+            m_askAndValidateNextWord(prevWord, out_nextWord);
+            return true;
+        }
     }
 
+    out_nextWord = nextWord;
+    user.usedWord(nextWord);
     return true;
 }
 
@@ -243,21 +270,17 @@ void Application::startPlayingMode()
         do
         {
             std::string word;
-            //TODO: verification in UI does not work in our case
-            //  A mistake should be a move
-            //  Needs to be able to ask for hints
-            UI::askForWord("Input your word", word, [=, this](const std::string &str) -> bool
-            {
-                return m_checkWord(str, prevWord);
-            });
-            user.usedWord(word);
+            m_askAndValidateNextWord(prevWord, word);
+            prevWord = word;
+
             UI::clear();
-            gameFinished = (word == finalWord);
 
             m_printWordChain(user.getWords(), startWord, finalWord);
+
+            gameFinished = (word == finalWord);
         } while (not gameFinished);
 
-        UI::askForYesNo("Continue?", repeat);
+        UI::askForYesNo("You finished, do you want to play again?", repeat);
     } while (repeat);
 
 }
@@ -272,6 +295,49 @@ void Application::m_printWordChain(const std::vector<std::string> &chain, const 
     message += " ... ---> " + finalWord;
 
     UI::printMessage(message);
+}
+
+bool Application::m_askForHint(const std::string &currentWord)
+{
+    bool wantHint;
+    UI::askForYesNo("Do you need a hint?", wantHint, false);
+
+    if (wantHint)
+    {
+        user.usedHint();
+        Tools::Solution_t<std::string> chain = m_generator.findPath(currentWord, user.getFinalWord());
+        std::string nextWord = chain.at(chain.size() - 2)->first;
+
+
+        bool wantCostlyHint;
+        UI::askForYesNo("Do want the costly hint ?", wantCostlyHint, false);
+
+        std::cout << "Hint:\t";
+        //nextWord and currentWord will be of the same size and differ in at most one letter
+        for (unsigned int i = 0; i < currentWord.size(); ++i)
+        {
+            if (nextWord[i] == currentWord[i])
+                std::cout<<currentWord[i];
+            else
+            {
+                if (wantCostlyHint)
+                {
+                    std::cout << nextWord[i];
+                    user.usedHint(4);
+                }
+                else
+                {
+                    //TODO: Modify from toupper to another color
+                    std::cout << (char)std::toupper(currentWord[i]);
+                    user.usedHint(1);
+                }
+
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    return true;
 }
 
 

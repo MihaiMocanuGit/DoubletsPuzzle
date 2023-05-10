@@ -21,10 +21,12 @@ private:
 
     bool m_initUser(std::string &out_startWord, std::string &out_finalWord, int &out_chainLength);
 
-    bool m_checkWord(const std::string &prevWord, const std::string &nextWord);
+    bool m_askForHint(const std::string &currentWord);
+    bool m_askAndValidateNextWord(const std::string &prevWord, std::string &out_nextWord);
 
     void m_printWordChain(const std::vector<std::string> &chain, const std::string &startWord,
                           const std::string &finalWord);
+
 public:
     Application();
 

@@ -47,7 +47,6 @@ bool UI::askForYesNo(const std::string &message, bool &output, bool yesDefault)
         printMessage(message + DEFAULT_YES + " ", false);
 
         std::string option;
-        std::cin.get();
         std::getline(std::cin, option);
 
         if (option.empty() or (option.size() == 1 and toupper(option[0]) == 'Y'))
@@ -79,15 +78,17 @@ bool UI::askForInteger(const std::string &message, int &output, const std::funct
     m_printInputTemplate();
     int result;
     std::cin >> result;
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     while (not validator(result))
     {
         printMessage("Invalid integer, try again");
         m_printInputTemplate();
 
+        std::cin >> result;
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin >> result;
 
     }
 

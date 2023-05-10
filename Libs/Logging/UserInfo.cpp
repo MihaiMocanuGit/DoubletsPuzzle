@@ -41,7 +41,17 @@ void UserInfo::usedWord(const std::string &usedWord)
     madeMove();
 }
 
-const std::vector<std::string> &UserInfo::getWords()
+const std::vector<std::string> &UserInfo::getWords() const
 {
     return m_wordsUsed;
+}
+
+const std::string &UserInfo::getFinalWord() const
+{
+    return m_finalWord;
+}
+
+const std::string &UserInfo::getStartWord() const
+{
+    return m_startingWord;
 }
