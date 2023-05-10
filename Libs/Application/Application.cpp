@@ -127,9 +127,9 @@ bool Application::m_initUser(std::string &out_startWord, std::string &out_finalW
     int wordLength;
     UI::askForInteger("How many letters shall the word have?", wordLength);
     MapNodes_t<std::string>::const_iterator startWordIt;
-    if (not m_generateStartingWord(wordLength, startWordIt))
+    while (not m_generateStartingWord(wordLength, startWordIt))
     {
-        return false;
+        UI::askForInteger("How many letters shall the new word have?", wordLength);
     }
 
 
@@ -137,9 +137,15 @@ bool Application::m_initUser(std::string &out_startWord, std::string &out_finalW
     Tools::Solution_t<std::string> finalWords;
     int maxDistance;
 
-    if (not m_generateFinalWords(startWordIt, finalWords, maxDistance))
+    //TODO: get rid of this copy paste logic somehow
+    while (not m_generateFinalWords(startWordIt, finalWords, maxDistance))
     {
-        return false;
+        UI::askForInteger("How many letters shall the new word have?", wordLength);
+        while (not m_generateStartingWord(wordLength, startWordIt))
+        {
+            UI::askForInteger("How many letters shall the new word have?", wordLength);
+        }
+
     }
 
 
@@ -215,6 +221,7 @@ void Application::startAutomaticMode()
 
 void Application::startPlayingMode()
 {
+    //TODO: decrease min difficulty to 2
     bool repeat;
 
     do
@@ -223,6 +230,11 @@ void Application::startPlayingMode()
         int chainLength;
         //this function will ask the user for options in the terminal.
         bool status = m_initUser(startWord, finalWord, chainLength);
+        if (status == false)
+        {
+            repeat = true;
+            continue;
+        }
         std::string prevWord = startWord;
 
 
@@ -253,6 +265,7 @@ void Application::startPlayingMode()
 void Application::m_printWordChain(const std::vector<std::string> &chain, const std::string &startWord,
                                    const std::string &finalWord)
 {
+    //TODO: maybe don't print redundant chains
     std::string message = startWord + " ---> ";
     for (const auto &word : chain)
         message += word + " ---> ";
