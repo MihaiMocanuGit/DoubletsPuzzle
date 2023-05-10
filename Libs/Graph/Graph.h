@@ -44,7 +44,7 @@ public:
 
     unsigned int size() const;
 
-    const MapNodes_t<T>::iterator &findNode(const T &withData) const;
+    MapNodes_t<T>::const_iterator findNode(const T &withData) const;
     MapNodes_t<T>::iterator findNode(const T &withData);
 
 };
@@ -190,7 +190,7 @@ std::map<T, Node<T>>::iterator Graph<T>::findNode(const T &withData)
 }
 
 template<typename T>
-const std::map<T, Node<T>>::iterator &Graph<T>::findNode(const T &withData) const
+std::map<T, Node<T>>::const_iterator Graph<T>::findNode(const T &withData) const
 {
     return m_nodes.find(withData);
 }

@@ -107,3 +107,8 @@ Tools::Solution_t <std::string> Generator::findPath(const std::string &startingW
     return solution;
 }
 
+const Graph<std::string> &Generator::graph() const
+{
+    return m_graph;
+}
+

@@ -37,6 +37,11 @@ void UserInfo::usedWord(const std::string &usedWord)
 {
     if (usedWord.size() != m_startingWord.size())
         throw std::logic_error("Size of words does not match!");
-
     m_wordsUsed.push_back(usedWord);
+    madeMove();
+}
+
+const std::vector<std::string> &UserInfo::getWords()
+{
+    return m_wordsUsed;
 }

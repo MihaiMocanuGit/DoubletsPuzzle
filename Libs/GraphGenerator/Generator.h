@@ -22,7 +22,7 @@ private:
 public:
     explicit Generator(std::string filePath);
     const Graph<std::string> &generateGraph(unsigned int noLetters);
-
+    const Graph<std::string> &graph() const;
     Tools::Solution_t<std::string> findPath(const std::string &startingWord, const std::string &searchedWord);
 
 

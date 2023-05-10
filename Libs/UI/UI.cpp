@@ -31,9 +31,9 @@ bool UI::askForWord(const std::string &message, std::string &output,
     {
         printMessage("Invalid word, try again");
         m_printInputTemplate();
+        std::cin >> result;
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin >> result;
     }
 
     output = result;
@@ -94,6 +94,11 @@ bool UI::askForInteger(const std::string &message, int &output, const std::funct
     output = result;
 
     return true;
+}
+
+void UI::clear()
+{
+    std::cout << "\x1B[2J\x1B[H";
 }
 
 

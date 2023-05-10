@@ -162,6 +162,27 @@ bool Application::m_initUser(std::string &out_startWord, std::string &out_finalW
     return true;
 }
 
+bool Application::m_checkWord(const std::string &prevWord, const std::string &nextWord)
+{
+    if (prevWord.size() != nextWord.size())
+        return false;
+    if (m_generator.graph().findNode(nextWord) == m_generator.graph().cend())
+        return false;
+
+    int noChanges = 0;
+    for (unsigned int i = 0; i < prevWord.size(); ++i)
+    {
+        if (prevWord[i] != nextWord[i])
+            noChanges++;
+
+        if (noChanges >= 2)
+            return false;
+    }
+
+    return true;
+}
+
+
 void Application::startAutomaticMode()
 {
 
@@ -194,13 +215,47 @@ void Application::startAutomaticMode()
 
 void Application::startPlayingMode()
 {
+    bool repeat;
 
-    std::string startWord, finalWord;
-    int chainLength;
-    //this function will ask the user for options in the terminal.
-    bool status = m_initUser(startWord, finalWord, chainLength);
+    do
+    {
+        std::string startWord, finalWord;
+        int chainLength;
+        //this function will ask the user for options in the terminal.
+        bool status = m_initUser(startWord, finalWord, chainLength);
+        std::string prevWord = startWord;
+
+
+        UI::printMessage(startWord + " ---> ... ---> " + finalWord);
+        bool gameFinished;
+        do
+        {
+            std::string word;
+            UI::askForWord("Input your word", word, [=, this](const std::string &str) -> bool
+            {
+                return m_checkWord(str, prevWord);
+            });
+            user.usedWord(word);
+            UI::clear();
+            gameFinished = (word == finalWord);
+
+            m_printWordChain(user.getWords(), startWord, finalWord);
+        } while (not gameFinished);
+
+        UI::askForYesNo("Continue?", repeat);
+    } while (repeat);
 
 }
 
+void Application::m_printWordChain(const std::vector<std::string> &chain, const std::string &startWord,
+                                   const std::string &finalWord)
+{
+    std::string message = startWord + " ---> ";
+    for (const auto &word : chain)
+        message += word + " ---> ";
+    message += " ... ---> " + finalWord;
+
+    UI::printMessage(message);
+}
 
 

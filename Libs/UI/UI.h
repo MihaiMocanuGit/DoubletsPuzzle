@@ -20,12 +20,13 @@ public:
 
     template <typename T>
     static void printSolution(const std::string &message, const Tools::Solution_t<T> &solution);
-
+    static void clear();
     static bool askForWord(const std::string &message, std::string &output,
                            const std::function< bool(const std::string &) > & = [](const std::string &){return true;});
     static bool askForYesNo(const std::string &message, bool &output, bool yesDefault = true);
     static bool askForInteger(const std::string &message, int &output,
                               const std::function< bool(int) >& validator = [](int){return true;});
+
 };
 
 

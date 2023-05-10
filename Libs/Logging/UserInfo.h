@@ -33,4 +33,6 @@ public:
     void usedWord(const std::string &usedWord);
 
     void finishTime(const AppClock_t &finish);
+
+    const std::vector<std::string> &getWords();
 };
