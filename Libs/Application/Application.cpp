@@ -41,7 +41,6 @@ bool Application::m_generateStartingWord(int wordLength, MapNodes_t<std::string>
 {
 
     const Graph<std::string> &GRAPH = m_generator.generateGraph(wordLength);
-    Tools::Solution_t<std::string> searchedChainLength;
 
     //we are searching for a node which has quite a bit of neighbours;
     //We won't stay to find the node with the most neighbours, we are going to stop after we found a certain
@@ -118,13 +117,17 @@ void Application::startPlayingMode()
     MapNodes_t<std::string>::const_iterator startWordIt;
     if (not m_generateStartingWord(wordLength, startWordIt))
     {
-
+        return;
     }
 
     //we are searching for the biggest chain smaller than 10
     Tools::Solution_t<std::string> finalWords;
     int maxDistance;
-    m_generateFinalWords(startWordIt, finalWords, maxDistance);
+
+    if (not m_generateFinalWords(startWordIt, finalWords, maxDistance))
+    {
+        return;
+    }
 
     int difficultyLength;
     m_askForDifficulty(maxDistance, difficultyLength);
@@ -135,6 +138,7 @@ void Application::startPlayingMode()
     std::string finalWord = finalWords[0]->first;
 
     user.initStartingInfo(startingWord, finalWord, difficultyLength, std::chrono::system_clock::now());
+
 
 }
 
