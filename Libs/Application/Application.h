@@ -29,12 +29,13 @@ private:
 
     void m_updateCsv();
 
+    void m_startAutomaticMode();
+    void m_startPlayingMode();
+    void m_startAnalyticsMode();
 public:
     Application();
 
-    void startAutomaticMode();
-    void startPlayingMode();
-    void startAnalyticsMode();
+
 
     //this should ask the user what mode to play
     void startApp();

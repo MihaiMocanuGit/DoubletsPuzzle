@@ -216,93 +216,6 @@ bool Application::m_askAndValidateNextWord(const std::string &prevWord, std::str
     return true;
 }
 
-
-void Application::startAutomaticMode()
-{
-
-    UI::printMessage("Started Automatic Mode!");
-
-    bool continueGame;
-    do
-    {
-
-        std::string startingWord, finalWord;
-        bool status1 = UI::askForWord("Insert the starting word:", startingWord);
-        bool status2 = UI::askForWord("Insert the final word, they have to have the same size:", finalWord);
-
-        while (startingWord.size() != finalWord.size())
-            status2 = UI::askForWord("The size does not match, try another", finalWord);
-
-        Generator generator("words_alpha.txt");
-
-        generator.generateGraph(startingWord.size());
-
-        //https://lewiscarrollresources.net/doublets/puzzles.html
-        Tools::Solution_t<std::string> solution = generator.findPath(startingWord, finalWord);
-        UI::printSolution<std::string>("", solution);
-
-        UI::askForYesNo("Continue game?", continueGame);
-    }while(continueGame);
-
-    UI::printMessage("Goodbye!");
-}
-
-void Application::startPlayingMode()
-{
-    //TODO: decrease min difficulty to 2
-    bool repeat;
-
-    do
-    {
-        std::string startWord, finalWord;
-        int chainLength;
-        //this function will ask the user for options in the terminal.
-        bool status = m_initUser(startWord, finalWord, chainLength);
-        if (status == false)
-        {
-            repeat = true;
-            continue;
-        }
-        std::string prevWord = startWord;
-
-
-        UI::printMessage(startWord + " ---> ... ---> " + finalWord);
-        bool gameFinished;
-        do
-        {
-            std::string word;
-            m_askAndValidateNextWord(prevWord, word);
-            prevWord = word;
-
-            UI::clear();
-
-            m_printWordChain(user.getWords(), startWord, finalWord);
-
-            gameFinished = (word == finalWord);
-        } while (not gameFinished);
-
-        user.finishTime(std::chrono::system_clock::now());
-
-        UI::clear();
-        UI::printMessage(user.toString());
-        m_updateCsv();
-        UI::askForYesNo("\nYou finished, do you want to play again?", repeat);
-    } while (repeat);
-
-}
-
-void Application::m_printWordChain(const std::vector<std::string> &chain, const std::string &startWord,
-                                   const std::string &finalWord)
-{
-    //TODO: maybe don't print redundant chains
-    std::string message = startWord + " ---> ";
-    for (const auto &word : chain)
-        message += word + " ---> ";
-    message += " ... ---> " + finalWord;
-
-    UI::printMessage(message);
-}
-
 bool Application::m_askForHint(const std::string &currentWord)
 {
     bool wantHint;
@@ -352,4 +265,185 @@ void Application::m_updateCsv()
     outfile << user.csvFormat() << '\n';
 }
 
+void Application::m_printWordChain(const std::vector<std::string> &chain, const std::string &startWord,
+                                   const std::string &finalWord)
+{
+    //TODO: maybe don't print redundant chains
+    std::string message = startWord + " ---> ";
+    for (const auto &word : chain)
+        message += word + " ---> ";
+    message += " ... ---> " + finalWord;
+
+    UI::printMessage(message);
+}
+
+void Application::m_startAutomaticMode()
+{
+    UI::clear();
+
+    UI::printMessage("Started Automatic Mode!");
+
+    bool continueGame;
+    do
+    {
+
+        std::string startingWord, finalWord;
+        bool status1 = UI::askForWord("Insert the starting word:", startingWord);
+        bool status2 = UI::askForWord("Insert the final word, they have to have the same size:", finalWord);
+
+        while (startingWord.size() != finalWord.size())
+            status2 = UI::askForWord("The size does not match, try another", finalWord);
+
+        Generator generator("words_alpha.txt");
+
+        generator.generateGraph(startingWord.size());
+
+        //https://lewiscarrollresources.net/doublets/puzzles.html
+        Tools::Solution_t<std::string> solution = generator.findPath(startingWord, finalWord);
+        UI::printSolution<std::string>("", solution);
+
+        UI::askForYesNo("Continue game?", continueGame);
+    }while(continueGame);
+
+    UI::printMessage("Exited Automatic Mode!");
+}
+
+void Application::m_startPlayingMode()
+{
+    UI::clear();
+    UI::printMessage("Started Playing Mode!");
+
+    //TODO: decrease min difficulty to 2
+    bool repeat;
+    do
+    {
+        std::string startWord, finalWord;
+        int chainLength;
+        //this function will ask the user for options in the terminal.
+        bool status = m_initUser(startWord, finalWord, chainLength);
+        if (status == false)
+        {
+            repeat = true;
+            continue;
+        }
+        std::string prevWord = startWord;
+
+
+        UI::printMessage(startWord + " ---> ... ---> " + finalWord);
+        bool gameFinished;
+        do
+        {
+            std::string word;
+            m_askAndValidateNextWord(prevWord, word);
+            prevWord = word;
+
+            UI::clear();
+
+            m_printWordChain(user.getWords(), startWord, finalWord);
+
+            gameFinished = (word == finalWord);
+        } while (not gameFinished);
+
+        user.finishTime(std::chrono::system_clock::now());
+
+        UI::clear();
+        UI::printMessage(user.toString());
+        m_updateCsv();
+        UI::askForYesNo("\nYou finished, do you want to play again?", repeat);
+    } while (repeat);
+
+    UI::printMessage("Exited Playing Mode!");
+}
+
+void Application::m_startAnalyticsMode()
+{
+    UI::clear();
+    UI::printMessage("Started Analytics Mode!");
+
+    bool repeat;
+    do
+    {
+        std::string username;
+        UI::askForWord("Input the username you're searching for", username);
+
+        std::ifstream file;
+        file.open(username + ".csv");
+
+        if (file.fail())
+            UI::printMessage("Username not found!");
+        else
+        {
+            std::set<std::string> uniqueWords;
+
+            //todo: skip first word
+            std::string line;
+            while (getline(file, line))
+            {
+                unsigned int firstComma = line.find(',');
+                unsigned int secondComma = line.find(',', firstComma + 1);
+                std::string regionOfInterest = line.substr(firstComma + 2, secondComma - firstComma - 2);
+                auto iss = std::istringstream(regionOfInterest);
+                std::string word;
+                while (iss >> word)
+                    uniqueWords.insert(word);
+            }
+
+            for (const auto& word : uniqueWords)
+                UI::printMessage(word + " ", false);
+
+            UI::printMessage("\nFinished!");
+        }
+
+
+
+
+        UI::askForYesNo("Do you want to repeat for another username?", repeat);
+    }while (repeat);
+    UI::printMessage("Exited Analytic Mode!");
+}
+
+
+void Application::startApp()
+{
+    bool repeat;
+    do
+    {
+
+        UI::clear();
+        UI::printMessage("Welcome to DoubletsPuzzle!");
+        UI::printMessage("What mode do you want to play?");
+        UI::printMessage("1) Automatic Mode");
+        UI::printMessage("2) Play Mode");
+        UI::printMessage("3) Analytic Mode");
+        UI::printMessage("0) EXIT");
+        UI::printNewLine();
+
+        int choice;
+        UI::askForInteger("Insert your choice:", choice, [](const int &no){return 0 <= no and no <= 3;});
+
+        switch (choice)
+        {
+            case 0:
+                //kindly ignore this, you saw nothing ok
+                goto EndOfProgram;
+                break;
+            case 1:
+                m_startAutomaticMode();
+                break;
+            case 2:
+                m_startPlayingMode();
+                break;
+            case 3:
+                m_startAnalyticsMode();
+                break;
+        }
+
+        UI::askForYesNo("Do you want to restart?", repeat);
+    }while (repeat);
+
+EndOfProgram:
+
+    UI::printMessage("Goodbye!");
+
+}
 

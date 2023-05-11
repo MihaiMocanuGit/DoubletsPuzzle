@@ -17,6 +17,7 @@ public:
     UI() = default;
 
     static void printMessage(const std::string &message, bool newLineAfter = true);
+    static void printNewLine();
 
     template <typename T>
     static void printSolution(const std::string &message, const Tools::Solution_t<T> &solution);

@@ -79,8 +79,13 @@ std::string UserInfo::toString()
 
 std::string UserInfo::csvFormat()
 {
-    std::string message = m_username + ", " + std::to_string(m_movesMade) + ", " + std::to_string(m_hintsUsed);
+    std::string message = m_username;
 
+    message += ",";
+    for (const auto &word : m_wordsUsed)
+        message += " " + word;
+
+    message += ", " + std::to_string(m_movesMade) + ", " + std::to_string(m_hintsUsed);
 
     std::time_t startTime_t = std::chrono::system_clock::to_time_t(m_startingTime);
     std::string startTime = std::string(std::ctime(&startTime_t));
@@ -92,9 +97,7 @@ std::string UserInfo::csvFormat()
     finishTime.pop_back();
 
     message += ", " + finishTime;
-    message += ",";
-    for (const auto &word : m_wordsUsed)
-        message += " " + word;
+
 
     return message;
 }

@@ -6,7 +6,7 @@ int main()
 {
     Application app;
 
-    app.startPlayingMode();
+    app.startApp();
     /*
     Generator generator("words_alpha.txt");
     generator.generateGraph(5);
