@@ -1,7 +1,8 @@
 #include <random>
+#include <fstream>
+
 #include "Application.h"
 #include "../GraphGenerator/Generator.h"
-
 
 Application::Application() : m_generator{Generator(WORD_PATH)}
 {
@@ -280,7 +281,12 @@ void Application::startPlayingMode()
             gameFinished = (word == finalWord);
         } while (not gameFinished);
 
-        UI::askForYesNo("You finished, do you want to play again?", repeat);
+        user.finishTime(std::chrono::system_clock::now());
+
+        UI::clear();
+        UI::printMessage(user.toString());
+        m_updateCsv();
+        UI::askForYesNo("\nYou finished, do you want to play again?", repeat);
     } while (repeat);
 
 }
@@ -304,7 +310,6 @@ bool Application::m_askForHint(const std::string &currentWord)
 
     if (wantHint)
     {
-        user.usedHint();
         Tools::Solution_t<std::string> chain = m_generator.findPath(currentWord, user.getFinalWord());
         std::string nextWord = chain.at(chain.size() - 2)->first;
 
@@ -322,13 +327,13 @@ bool Application::m_askForHint(const std::string &currentWord)
             {
                 if (wantCostlyHint)
                 {
-                    std::cout << nextWord[i];
+                    std::cout << "\033[1;33m" << nextWord[i]  << "\033[0m";
                     user.usedHint(4);
                 }
                 else
                 {
                     //TODO: Modify from toupper to another color
-                    std::cout << (char)std::toupper(currentWord[i]);
+                    std::cout << "\033[1;35m" << currentWord[i] << "\033[0m";
                     user.usedHint(1);
                 }
 
@@ -338,6 +343,13 @@ bool Application::m_askForHint(const std::string &currentWord)
     }
 
     return true;
+}
+
+void Application::m_updateCsv()
+{
+    std::ofstream outfile;
+    outfile.open(user.getUsername() + ".csv", std::ios_base::app);
+    outfile << user.csvFormat() << '\n';
 }
 
 

@@ -27,6 +27,8 @@ private:
     void m_printWordChain(const std::vector<std::string> &chain, const std::string &startWord,
                           const std::string &finalWord);
 
+    void m_updateCsv();
+
 public:
     Application();
 

@@ -34,7 +34,11 @@ public:
 
     void finishTime(const AppClock_t &finish);
 
+    const std::string &getUsername() const;
     const std::vector<std::string> &getWords() const;
     const std::string &getFinalWord() const;
     const std::string &getStartWord() const;
+
+    std::string toString();
+    std::string csvFormat();
 };
