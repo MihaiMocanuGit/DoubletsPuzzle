@@ -73,13 +73,14 @@ void Generator::m_extractGraph()
 
         }
     }
-
+//TODO: Bug, inside for m_graph is changed, when I quit the function it reverts back to old version
 }
 
 const Graph<std::string> &Generator::generateGraph(unsigned int noLetters)
 {
     if(m_noLetters != noLetters)
     {
+        //m_graph = Graph<std::string>();
         m_noLetters = noLetters;
 
         m_insertIntoMap();
@@ -87,6 +88,7 @@ const Graph<std::string> &Generator::generateGraph(unsigned int noLetters)
         erase_if(m_map, [](const auto &pair) -> bool
         { return pair.second.size() <= 1; });
 
+        //TODO: resolve bug, m_graph is modified inside function but outside it reverts to the old version
         m_extractGraph();
     }
 
