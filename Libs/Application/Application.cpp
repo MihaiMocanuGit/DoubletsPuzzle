@@ -421,11 +421,11 @@ void Application::startApp()
         int choice;
         UI::askForInteger("Insert your choice:", choice, [](const int &no){return 0 <= no and no <= 3;});
 
+        repeat = true;
         switch (choice)
         {
             case 0:
-                //kindly ignore this, you saw nothing ok
-                goto EndOfProgram;
+                repeat = false;
                 break;
             case 1:
                 m_startAutomaticMode();
@@ -436,12 +436,11 @@ void Application::startApp()
             case 3:
                 m_startAnalyticsMode();
                 break;
+            default:
+                UI::printMessage("Wrong input");
         }
 
-        UI::askForYesNo("Do you want to restart?", repeat);
     }while (repeat);
-
-EndOfProgram:
 
     UI::printMessage("Goodbye!");
 
