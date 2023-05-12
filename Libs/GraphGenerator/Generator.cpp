@@ -53,6 +53,7 @@ void Generator::m_insertIntoMap()
 void Generator::m_extractGraph()
 {
     m_graph = Graph<std::string>();
+
     for (const auto &pair: m_map)
     {
         MapNodesPtr_t<std::string> neighboursPtr = {};
@@ -62,33 +63,28 @@ void Generator::m_extractGraph()
             if (itCurrent == m_graph.end())
                 itCurrent = m_graph.addNode(elem, neighboursPtr);
             else
-            {
                 for (const auto &neighbour: neighboursPtr)
-                {
                     m_graph.connectNodes(itCurrent, neighbour.second->getIterator());
-                }
 
-            }
             neighboursPtr.insert({elem, &(itCurrent->second)});
 
         }
     }
-//TODO: Bug, inside for m_graph is changed, when I quit the function it reverts back to old version
 }
 
 const Graph<std::string> &Generator::generateGraph(unsigned int noLetters)
 {
     if(m_noLetters != noLetters)
     {
-        //m_graph = Graph<std::string>();
         m_noLetters = noLetters;
 
+        //we are clearing m_map by swapping its elements with an empty map
+        WordMap_t().swap(m_map);
         m_insertIntoMap();
 
         erase_if(m_map, [](const auto &pair) -> bool
         { return pair.second.size() <= 1; });
 
-        //TODO: resolve bug, m_graph is modified inside function but outside it reverts to the old version
         m_extractGraph();
     }
 
